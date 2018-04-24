@@ -10,3 +10,7 @@ the installation repository to the system. The key import could be done with the
 ```
 sudo apt-key adv --keyserver pgp.skewed.de --recv-key 612DEFB798507F25
 ```
+
+## Documentation
+
+The [graph-tool documentation](https://graph-tool.skewed.de/static/doc/index.html)
