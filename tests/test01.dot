@@ -1,0 +1,6 @@
+digraph Fruits {
+Fruits -> Apple
+Fruits -> Banana
+Fruits -> Pear
+Fruits -> Mango
+}
