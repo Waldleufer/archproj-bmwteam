@@ -50,24 +50,40 @@ def main(argv):
     :param argv: the argument list passed by the command line
     """
 
-    file_name = "../tests/test01.dot"  # file_name could be predefined here (e.g. for testing)
+    DEBUG_FILE = "../tests/test01.dot"
+    INVALID_INPUT_MSG = "graph_analyzer: invalid input --"
+    ARG_ERROR_MSG = "Try 'graph_analyzer -h' for more information."
+    HELP_MSG = """Usage: graph_analyzer [OPTION ...] FILE
+              Options:
+              -h, -?, --help         Print this message.
+              -s, --search <NODE>    Searches for the given node."""
+
+    def print_arg_error_and_exit():
+        print(ARG_ERROR_MSG)
+        sys.exit(1)
+
+    file_name = DEBUG_FILE  # file_name could be predefined here (e.g. for testing)
     try:
-        opts, args = getopt.getopt(argv, "h?", ["help"])
-    except getopt.GetoptError:
-        print("graph-analyzer.py <file_name>")
-        sys.exit(2)
+        opts, args = getopt.getopt(argv, "h?s:", ["help", "search="])
+    except getopt.GetoptError as err:
+        print(INVALID_INPUT_MSG, err)
+        print_arg_error_and_exit()
 
     for opt, arg in opts:
         if opt in ("-h", "-?", "--help"):
-            print("Usage: graph-analyzer.py [ options ... ] [file_name]\n\n"
-                  "Options:\n"
-                  "-h, -?, --help\t Print this message.")
+            print(HELP_MSG)
             sys.exit()
+        elif opt in ("-s", "--search"):
+            print("Search results for", arg)
+            # TODO: implement search function
+        else:
+            print(INVALID_INPUT_MSG, opt)
+            print_arg_error_and_exit()
 
     if not args:
         if not file_name:
-            print("graph-analyzer.py <file_name>")
-            sys.exit(2)
+            print("No input file.")
+            print_arg_error_and_exit()
     else:
         file_name = args[0]
 
