@@ -19,10 +19,8 @@ from graph_tool.all import *
 import sys
 import getopt
 
-VERTEX_NAME = ("v", "vertex_name")  # specifies the vertex name as property
 
-
-def print_graph_vertices(graph: object):
+def print_graph_vertices(graph: Graph):
     """
     Prints some information about the vertices in the given graph.
     'in-degree': The number of edges to parent nodes.
@@ -32,15 +30,14 @@ def print_graph_vertices(graph: object):
     :param graph: the graph to print
     """
     # print detailed vertex data
-    for i in range(0, len(graph.get_vertices())):
-        vtx = graph.vertex(i)
-        print("vertex:", int(vtx),
-              ", in-degree:", vtx.in_degree(),
+    for vtx in graph.vertices():
+        print("vertex[%d]" % vtx,
+              "in-degree:", vtx.in_degree(),
               ", out-degree:", vtx.out_degree(),
               ", value:", graph.vp.vertex_name[vtx])
 
 
-def search_vertices(graph: object, search_str: str) -> object:
+def search_vertices(graph: Graph, search_str: str) -> list:
     """
     Searches for nodes which contain the given search string (case sensitive).
 
@@ -49,8 +46,7 @@ def search_vertices(graph: object, search_str: str) -> object:
     :return: a list of the found vertices or a empty list
     """
     vtx_list = []
-    for i in range(0, len(graph.get_vertices())):
-        vtx = graph.vertex(i)
+    for vtx in graph.vertices():
         vtx_value = graph.vp.vertex_name[vtx]
         if vtx_value.find(search_str) != -1:
             vtx_list.append(vtx)
@@ -100,12 +96,12 @@ def main(argv):
         elif opt in ("-p", "--print"):
             print_graph_vertices(graph)
         elif opt in ("-s", "--search"):
-            print("Search results for", arg)
+            print("Search results for '%s':" % arg)
             vertex_list = search_vertices(graph, arg)
             if len(vertex_list) > 0:
                 for vtx in vertex_list:
                     vtx_value = graph.vp.vertex_name[vtx]
-                    print("Vertex:", vtx_value)
+                    print("vertex[%s]" % int(vtx), vtx_value)
             else:
                     print("Nothing found.")
         else:
