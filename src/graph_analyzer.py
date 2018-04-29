@@ -19,28 +19,42 @@ from graph_tool.all import *
 import sys
 import getopt
 
+VERTEX_NAME = ("v", "vertex_name")  # specifies the vertex name as property
 
-def print_graph_vertices(file_name):
+
+def print_graph_vertices(graph: object):
     """
-    Prints some information about the vertices in a graph. Only used for experiments and debugging.
+    Prints some information about the vertices in the given graph.
+    'in-degree': The number of edges to parent nodes.
+    'out-degree': The number of edges to child nodes.
+    'value': The name of the node.
 
-    :param file_name: the path to the file corresponding *.dot file
+    :param graph: the graph to print
     """
-    graph = load_graph(file_name)
-
-    # print vertices values
-    dict_size = 0
-    for vtx in graph.properties[("v", "vertex_name")]:
-        print(vtx)
-        dict_size = dict_size + 1
-
     # print detailed vertex data
-    for i in range(0, dict_size):
+    for i in range(0, len(graph.get_vertices())):
         vtx = graph.vertex(i)
         print("vertex:", int(vtx),
-              "in-degree:", vtx.in_degree(),
-              "out-degree:", vtx.out_degree(),
-              "value:", graph.vp.vertex_name[vtx])
+              ", in-degree:", vtx.in_degree(),
+              ", out-degree:", vtx.out_degree(),
+              ", value:", graph.vp.vertex_name[vtx])
+
+
+def search_vertices(graph: object, search_str: str) -> object:
+    """
+    Searches for nodes which contain the given search string (case sensitive).
+
+    :param graph: the graph containing the nodes
+    :param search_str: the string to search for in the node name
+    :return: a list of the found vertices or a empty list
+    """
+    vtx_list = []
+    for i in range(0, len(graph.get_vertices())):
+        vtx = graph.vertex(i)
+        vtx_value = graph.vp.vertex_name[vtx]
+        if vtx_value.find(search_str) != -1:
+            vtx_list.append(vtx)
+    return vtx_list
 
 
 def main(argv):
@@ -50,12 +64,13 @@ def main(argv):
     :param argv: the argument list passed by the command line
     """
 
-    DEBUG_FILE = "../tests/test01.dot"
+    DEBUG_FILE = "../tests/test01.dot"  # TODO: remove on release
     INVALID_INPUT_MSG = "graph_analyzer: invalid input --"
     ARG_ERROR_MSG = "Try 'graph_analyzer -h' for more information."
     HELP_MSG = """Usage: graph_analyzer [OPTION ...] FILE
               Options:
               -h, -?, --help         Print this message.
+              -p, --print            Print all nodes and their details.
               -s, --search <NODE>    Searches for the given node."""
 
     def print_arg_error_and_exit():
@@ -64,21 +79,10 @@ def main(argv):
 
     file_name = DEBUG_FILE  # file_name could be predefined here (e.g. for testing)
     try:
-        opts, args = getopt.getopt(argv, "h?s:", ["help", "search="])
+        opts, args = getopt.getopt(argv, "h?ps:", ["help", "print", "search="])
     except getopt.GetoptError as err:
         print(INVALID_INPUT_MSG, err)
         print_arg_error_and_exit()
-
-    for opt, arg in opts:
-        if opt in ("-h", "-?", "--help"):
-            print(HELP_MSG)
-            sys.exit()
-        elif opt in ("-s", "--search"):
-            print("Search results for", arg)
-            # TODO: implement search function
-        else:
-            print(INVALID_INPUT_MSG, opt)
-            print_arg_error_and_exit()
 
     if not args:
         if not file_name:
@@ -87,7 +91,26 @@ def main(argv):
     else:
         file_name = args[0]
 
-    print_graph_vertices(file_name)
+    graph = load_graph(file_name)
+
+    for opt, arg in opts:
+        if opt in ("-h", "-?", "--help"):
+            print(HELP_MSG)
+            sys.exit()
+        elif opt in ("-p", "--print"):
+            print_graph_vertices(graph)
+        elif opt in ("-s", "--search"):
+            print("Search results for", arg)
+            vertex_list = search_vertices(graph, arg)
+            if len(vertex_list) > 0:
+                for vtx in vertex_list:
+                    vtx_value = graph.vp.vertex_name[vtx]
+                    print("Vertex:", vtx_value)
+            else:
+                    print("Nothing found.")
+        else:
+            print(INVALID_INPUT_MSG, opt)
+            print_arg_error_and_exit()
 
 
 if __name__ == "__main__":
