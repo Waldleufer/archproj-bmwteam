@@ -18,6 +18,7 @@ from graph_tool.all import *
 
 import sys
 import getopt
+import math
 
 
 def print_graph_vertices(graph: Graph):
@@ -53,6 +54,24 @@ def search_vertices(graph: Graph, search_str: str) -> list:
     return vtx_list
 
 
+def find_hotspots(graph: Graph, top_length=0) -> list:
+    """
+    Finds the top nodes with most outgoing connections to other nodes ("hotspots").
+
+    :param graph: the graph containing the given nodes
+    :param top_length: return the top N results or the top log2(graph_size)+1 if no parameter was given
+    :return: a list of nodes with the top most connections
+    """
+    if top_length <= 0:
+        top_length = int(math.log2(len(graph.get_vertices()))) + 1  # use log2 to hold the result list small
+
+    vtx_list = list(graph.vertices())
+    vtx_list.sort(key=lambda vertex: vertex.out_degree(), reverse=True)
+    del vtx_list[top_length:]
+
+    return vtx_list
+
+
 def main(argv):
     """
     Main function which parses the passed arguments.
@@ -67,7 +86,8 @@ def main(argv):
               Options:
               -h, -?, --help         Print this message.
               -p, --print            Print all nodes and their details.
-              -s, --search <NODE>    Searches for the given node."""
+              -s, --search <NODE>    Search for the given node.
+              -t, --top              Find the top nodes with the most connections (hotspots)"""
 
     def print_arg_error_and_exit():
         print(ARG_ERROR_MSG)
@@ -75,7 +95,7 @@ def main(argv):
 
     file_name = DEBUG_FILE  # file_name could be predefined here (e.g. for testing)
     try:
-        opts, args = getopt.getopt(argv, "h?ps:", ["help", "print", "search="])
+        opts, args = getopt.getopt(argv, "h?ps:t", ["help", "print", "search=", "top"])
     except getopt.GetoptError as err:
         print(INVALID_INPUT_MSG, err)
         print_arg_error_and_exit()
@@ -104,6 +124,13 @@ def main(argv):
                     print("vertex[%s]" % int(vtx), vtx_value)
             else:
                     print("Nothing found.")
+        elif opt in ("-t", "--top"):
+            vertex_list = find_hotspots(graph)
+            for vtx in vertex_list:
+                print("vertex[%d]" % vtx,
+                      "in-degree:", vtx.in_degree(),
+                      ", out-degree:", vtx.out_degree(),
+                      ", value:", graph.vp.vertex_name[vtx])
         else:
             print(INVALID_INPUT_MSG, opt)
             print_arg_error_and_exit()
