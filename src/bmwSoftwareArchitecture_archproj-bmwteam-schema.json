@@ -1,0 +1,80 @@
+{
+  "$schema" : "url#",
+  "description": "A representation of a software architecture",
+  "type": "object",
+  "Context Groups": "Contains List of all contextGroups"[
+    {
+      "contextGroup 1": "Contains List of all hardwareGroups" [
+        {
+          "hardwareGroup 1 [- specific hardware Group]": "Contains List of all components" [
+            {
+              "name of component 1_1": {
+                "domain": "domainname of the component as string",
+                "contextGroup": "contextGroup of the component as string",
+                "hardwareGroup": "hardwareGroup of the component [- specific hardware Group] as string"
+              }
+            },
+            {
+              "name of component 1_2": {
+                "domain": "domainname of the component as string",
+                "contextGroup": "contextGroup of the component as string",
+                "hardwareGroup": "hardwareGroup of the component [- specific hardware Group] as string"
+              }
+            }
+          ]
+        },
+        {
+          "hardwareGroup 2 [- specific hardware Group]": [
+            {
+              "name of component 2_1": {
+                "domain": "domainname of the component",
+                "contextGroup": "contextGroup of the component",
+                "hardwareGroup": "hardwareGroup of the component"
+              }
+            },
+            {
+              "name of component 2_2": {
+                "domain": "domainname of the component",
+                "contextGroup": "contextGroup of the component",
+                "hardwareGroup": "hardwareGroup of the component"
+              }
+            }
+          ]
+        },
+        {
+          "...": [
+            {
+
+            }
+          ]
+        }
+      ]
+    },
+
+    {
+      "contextGroup 2": [
+        {
+          "...": [
+            {
+
+            }
+          ]
+        }
+      ]
+    },
+
+    {
+      "contextGroup 3": [
+
+      ]
+    },
+
+    {
+      "...": [
+        {
+
+        }
+      ]
+    }
+  ]
+}
