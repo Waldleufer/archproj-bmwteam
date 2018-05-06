@@ -5,3 +5,4 @@ MGU_SW_Components_HLA.PNG
 package-depends.dot
 pn-depends.dot
 task-depends.dot
+bmw-arch.json
