@@ -3,4 +3,8 @@ Fruits -> Apple
 Fruits -> Banana
 Fruits -> Pear
 Fruits -> Mango
+Apple -> Apple Green
+Apple -> Apple Red
+Green -> Light Green
+Green -> Dark Green
 }

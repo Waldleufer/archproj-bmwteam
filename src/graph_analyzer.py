@@ -38,6 +38,39 @@ def print_graph_vertices(graph: Graph):
               ", value:", graph.vp.vertex_name[vtx])
 
 
+def print_vertex_children(graph: Graph, vertex: int, degree=1):
+    """
+    Prints the given vertex and all its (sub-)children in a tree-like structure.
+
+    :param graph: the graph which contains the given vertex
+    :param vertex: the vertex index of the parent node to print
+    :param degree: the degree of sub-children to print
+    """
+    BRANCH_FORK = "├─ "
+    BRANCH_END = "└─ "
+    TREE_TRUNK = "│  "
+    TREE_EPMTY = "   "
+
+    def print_recursive(vtx: int, deg=1, indent="", branch=""):
+        out_degree = graph.vertex(vtx).out_degree()
+        print("%s%svertex[%d]" % (indent, branch, vtx),
+              "in-degree:", graph.vertex(vtx).in_degree(),
+              "out-degree:", out_degree,
+              "value:", graph.vp.vertex_name[vtx])
+
+        if branch == BRANCH_FORK:
+            indent += TREE_TRUNK
+        elif branch == BRANCH_END:
+            indent += TREE_EPMTY
+
+        if out_degree and deg:
+            for child in graph.get_out_neighbours(vtx)[:-1]:
+                print_recursive(child, deg - 1, indent, BRANCH_FORK)
+            print_recursive(graph.get_out_neighbours(vtx)[-1:], deg - 1, indent, BRANCH_END)
+
+    print_recursive(vertex, degree)
+
+
 def search_vertices(graph: Graph, search_str: str) -> list:
     """
     Searches for nodes which contain the given search string (case sensitive).
@@ -79,15 +112,16 @@ def main(argv):
     :param argv: the argument list passed by the command line
     """
 
-    DEBUG_FILE = "../tests/test01.dot"  # TODO: remove on release
+    DEBUG_FILE = "../tests/test02.dot"  # TODO: remove on release
     INVALID_INPUT_MSG = "graph_analyzer: invalid input --"
     ARG_ERROR_MSG = "Try 'graph_analyzer -h' for more information."
     HELP_MSG = """Usage: graph_analyzer [OPTION ...] FILE
               Options:
-              -h, -?, --help         Print this message.
-              -p, --print            Print all nodes and their details.
-              -s, --search <NODE>    Search for the given node.
-              -t, --top              Find the top nodes with the most connections (hotspots)"""
+              -c, --children <NODE_ID>   Print the Node and its (sub-)children.
+              -h, -?, --help             Print this message.
+              -p, --print                Print all nodes and their details.
+              -s, --search <NODE_VALUE>  Search for the given node.
+              -t, --top                  Find the top nodes with the most connections (hotspots)"""
 
     def print_arg_error_and_exit():
         print(ARG_ERROR_MSG)
@@ -95,7 +129,7 @@ def main(argv):
 
     file_name = DEBUG_FILE  # file_name could be predefined here (e.g. for testing)
     try:
-        opts, args = getopt.getopt(argv, "h?ps:t", ["help", "print", "search=", "top"])
+        opts, args = getopt.getopt(argv, "c:h?ps:t", ["help", "print", "search=", "top", "children="])
     except getopt.GetoptError as err:
         print(INVALID_INPUT_MSG, err)
         print_arg_error_and_exit()
@@ -110,7 +144,9 @@ def main(argv):
     graph = load_graph(file_name)
 
     for opt, arg in opts:
-        if opt in ("-h", "-?", "--help"):
+        if opt in ("-c", "--children"):
+            print_vertex_children(graph, int(arg), 2)
+        elif opt in ("-h", "-?", "--help"):
             print(HELP_MSG)
             sys.exit()
         elif opt in ("-p", "--print"):
@@ -129,8 +165,8 @@ def main(argv):
             for vtx in vertex_list:
                 print("vertex[%d]" % vtx,
                       "in-degree:", vtx.in_degree(),
-                      ", out-degree:", vtx.out_degree(),
-                      ", value:", graph.vp.vertex_name[vtx])
+                      "out-degree:", vtx.out_degree(),
+                      "value:", graph.vp.vertex_name[vtx])
         else:
             print(INVALID_INPUT_MSG, opt)
             print_arg_error_and_exit()
