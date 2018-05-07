@@ -16,8 +16,8 @@
 
 from graph_tool.all import *
 
+import argparse
 import sys
-import getopt
 import math
 
 
@@ -111,65 +111,48 @@ def main(argv):
 
     :param argv: the argument list passed by the command line
     """
+    parser = argparse.ArgumentParser(description="A program to analyse and explore large *.dot files.")
+    parser.add_argument('file', type=str, metavar='FILE')
+    parser.add_argument('-c', '--children',  type=int, nargs='?', metavar='NODE_ID',
+                        help="Print the Node and its (sub-)children.")
+    parser.add_argument('-p', '--print', action='store_true', help="Print all nodes and their details.")
+    parser.add_argument('-s', '--search', type=str, nargs='+', metavar='SEARCH_STR', help="Search for the given node.")
+    parser.add_argument('-t', '--top', action='store_true',
+                        help="Find the top nodes with the most connections (hotspots).")
 
-    DEBUG_FILE = "../tests/test02.dot"  # TODO: remove on release
-    INVALID_INPUT_MSG = "graph_analyzer: invalid input --"
-    ARG_ERROR_MSG = "Try 'graph_analyzer -h' for more information."
-    HELP_MSG = """Usage: graph_analyzer [OPTION ...] FILE
-              Options:
-              -c, --children <NODE_ID>   Print the Node and its (sub-)children.
-              -h, -?, --help             Print this message.
-              -p, --print                Print all nodes and their details.
-              -s, --search <NODE_VALUE>  Search for the given node.
-              -t, --top                  Find the top nodes with the most connections (hotspots)"""
+    args = parser.parse_args()
 
-    def print_arg_error_and_exit():
-        print(ARG_ERROR_MSG)
+    if not args.file:
+        print("Try 'graph_analyzer -h' for more information.")
         sys.exit(1)
-
-    file_name = DEBUG_FILE  # file_name could be predefined here (e.g. for testing)
-    try:
-        opts, args = getopt.getopt(argv, "c:h?ps:t", ["help", "print", "search=", "top", "children="])
-    except getopt.GetoptError as err:
-        print(INVALID_INPUT_MSG, err)
-        print_arg_error_and_exit()
-
-    if not args:
-        if not file_name:
-            print("No input file.")
-            print_arg_error_and_exit()
     else:
-        file_name = args[0]
+        graph = load_graph(args.file)
 
-    graph = load_graph(file_name)
+    if args.children:
+        print_vertex_children(graph, args.children, 2)
 
-    for opt, arg in opts:
-        if opt in ("-c", "--children"):
-            print_vertex_children(graph, int(arg), 2)
-        elif opt in ("-h", "-?", "--help"):
-            print(HELP_MSG)
-            sys.exit()
-        elif opt in ("-p", "--print"):
-            print_graph_vertices(graph)
-        elif opt in ("-s", "--search"):
-            print("Search results for '%s':" % arg)
-            vertex_list = search_vertices(graph, arg)
-            if len(vertex_list) > 0:
+    if args.print:
+        print_graph_vertices(graph)
+
+    if args.search:
+        for search_str in args.search:
+            vertex_list = search_vertices(graph, search_str)
+            list_len = len(vertex_list)
+            if list_len:
+                print("Found %d results for '%s':" % (list_len, search_str))
                 for vtx in vertex_list:
                     vtx_value = graph.vp.vertex_name[vtx]
                     print("vertex[%s]" % int(vtx), vtx_value)
             else:
-                    print("Nothing found.")
-        elif opt in ("-t", "--top"):
-            vertex_list = find_hotspots(graph)
-            for vtx in vertex_list:
-                print("vertex[%d]" % vtx,
-                      "in-degree:", vtx.in_degree(),
-                      "out-degree:", vtx.out_degree(),
-                      "value:", graph.vp.vertex_name[vtx])
-        else:
-            print(INVALID_INPUT_MSG, opt)
-            print_arg_error_and_exit()
+                print("No results found for '%s'." % search_str)
+
+    if args.top:
+        vertex_list = find_hotspots(graph)
+        for vtx in vertex_list:
+            print("vertex[%d]" % vtx,
+                  "in-degree:", vtx.in_degree(),
+                  "out-degree:", vtx.out_degree(),
+                  "value:", graph.vp.vertex_name[vtx])
 
 
 if __name__ == "__main__":
