@@ -6,3 +6,7 @@ package-depends.dot
 pn-depends.dot
 task-depends.dot
 bmw-arch.json
+
+# Python
+__pycache__/
+*.py[cod]
