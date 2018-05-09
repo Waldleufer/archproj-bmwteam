@@ -24,7 +24,7 @@ def _breakdownDict(dic):
     """
     Breaks down our whole bmw-json schema into a single dictionary.
     param dic: a dictionary in our bmw-json schema.
-    return: a single dictionary containing every module and its "domain", "contextGroup" and "hardwareGroup" without any deeper lists or dictionaries.
+    return: a single dictionary containing every module and its "domain", "contextGroup" and "abstractionLayer" without any deeper lists or dictionaries.
     """
     modules = {}
     for k1,v1 in dic.items():#dict 1 - k1=contextGroups, v1=List of context group
@@ -85,15 +85,15 @@ def searchByContext(file_path, context):
     return contextlist
 
 
-def searchByHardware(file_path, hardware):
+def searchByAbstraction(file_path, abstractionLayer):
     """
     Searches a dictionary in our bmw-json schema for every module inside the given contextGroup.
     param file_path: the path to the json file to be searched. It should be in our bmw-json schema.
-    param hardware: the hardwareGroup of which content is requested.
-    return: a list of every module inside the given hardwareGroup.
+    param abstractionLayer: the abstractionLayer of which content is requested.
+    return: a list of every module inside the given abstractionLayer.
     """
-    #This list can be used to check whether everything was inputted correctly into our json file. It contains every hardwareGroup.
-    #hardwares = ["Presentation", "Middleware", "Middleware - OnlineApp platform", "Services", "Presentation - OnlineApps",
+    #This list can be used to check whether everything was inputted correctly into our json file. It contains every abstractionLayer.
+    #abstractionLayers = ["Presentation", "Middleware", "Middleware - OnlineApp platform", "Services", "Presentation - OnlineApps",
     #"Services - Telematics platform - Infrastructure", "Services - Telematics platform - Iterface-vehicle",
     #"System Infrastructure - off-the-shelf", "System Infrastructure - off-the-shelf - compression", "System Infrastructure - off-the-shelf - rendering", "System Infrastructure - off-the-shelf - imaging", "System Infrastructure - off-the-shelf - string", "System Infrastructure - off-the-shelf - json", "System Infrastructure - off-the-shelf - xml", "System Infrastructure - off-the-shelf - Audio / AVB stack",
     #"System Infrastructure - product specific", "System Infrastructure - product specific - RSU", "System Infrastructure - product specific - Personalization", "System Infrastructure - product specific - Diversity",
@@ -104,12 +104,12 @@ def searchByHardware(file_path, hardware):
     dic = json.loads(data_file.read())
 
     modules = _breakdownDict(dic)
-    hardwarelist = []
+    abstractionLayerList = []
     for k,v in modules.items():
-        #if(v["hardwareGroup"] not in hardwares and v["hardwareGroup"] is not None):
-        if(v["hardwareGroup"] == hardware):
-            hardwarelist.append(k)
-    return hardwarelist
+        #if(v["abstractionLayer"] not in abstractionLayers and v["abstractionLayer"] is not None):
+        if(v["abstractionLayer"] == abstractionLayer):
+            abstractionLayerList.append(k)
+    return abstractionLayerList
 
 
 
@@ -126,8 +126,8 @@ usage example
 #contextlist = searchByContext("", "Navigation")
 #print(contextlist)
 
-#hardwarelist = searchByHardware("", "Presentation")
-#print(hardwarelist)
+#abstractionLayerList = searchByAbstraction("", "Presentation")
+#print(abstractionLayerList)
 
 
 
