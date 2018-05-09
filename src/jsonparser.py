@@ -17,106 +17,7 @@
 import sys #only used for usage examples
 import json
 
-JSON_FILE_PATH = "../tests/jsonparser/bmw-arch.json"
-
-def _finditemDict(obj, key):
-    """
-    Returns a list of every found key in the given dictionary.
-    If there are lists or dictionaries inside, those are also searched with a recursive call or _finditemList().
-    param obj: the dictionary to be searched. This should be a dictionary like in our bmw-json schema.
-    param key: the key to be searched in obj.
-    return: a list of dictionaries containig all descendants of every found key-entry or None if nothing is found.
-    """
-    if type(obj)==list:
-        return _finditemList(obj, key)
-    elif type(obj)==dict:
-        itemlist = []
-        if key in obj and type(obj[key])!=str and obj[key]!=None:
-            itemlist = itemlist + obj[key]
-        for k, v in obj.items():
-            if isinstance(v,dict):
-                item = _finditemDict(v, key)
-                if item is not None: itemlist = itemlist + item
-            elif isinstance(v,list):
-                item = _finditemList(v, key)
-                if item is not None: itemlist = itemlist + item
-        if len(itemlist) != 0:
-            return itemlist
-        else:
-            return None
-
-
-def _finditemList(obj, key):
-    """
-    Returns a list of every found key in the given list.
-    If there are lists or dictionaries inside, those are also searched with a recursive call or _finditemDict().
-    param obj: the list to be searched. This should be a list like in our bmw-json schema.
-    param key: the key to be searched in obj.
-    return: a list of dictionaries containig all descendants of every found key-entry in deeper dictionaries or None if nothing is found.
-    """
-    if type(obj)==dict:
-        return _finditemDict(obj, key)
-    elif type(obj)==list:
-        itemlist = []
-        for v in obj:
-            if type(v)==dict:
-                item = _finditemDict(v, key)
-                if item is not None: itemlist = itemlist + item
-            elif v==key:#should never happen (we've got no lists in lists)
-                itemlist.append(v)
-        if len(itemlist) != 0:
-            return itemlist
-        else:
-            return None
-
-
-def finditem(obj, key):
-    """
-    Returns the key-entrys children as a list of dictionaries.
-    (except the key is too deep in the object and its children arent further dictionaries, e.g. "domain")
-    param obj: the dictionary to be searched. This should be in our bmw-json schema.
-    param key: the key to be searched in obj.
-    return: the key-entrys children as a list of dictionaries or an empty list if there are no deeper dictionaries or nothing is found.
-    """
-    item = _finditemDict(obj, key)
-    if item is not None:
-        #print(key + ":", item)
-        return item
-    else:
-        #print("Nothing found.")
-        return []
-
-
-def getDirectDescendants(lis):
-    """
-    Gets a list of dictionaries and returns only the keys of all dictionaries in a list.
-    param lis: a list of dictionaries.
-    return: a list of every key from all the dictionaries (doesn't look deeper into each dictionary).
-    """
-    desc = []
-    for dic in lis:
-        for k,v in dic.items():
-            desc.append(k)
-    return desc
-
-
-def findAndGetDirectDescendants(file_path, key):
-    """
-    Combines finditem and getDirectDescendants for easier use and takes a filepath instead of an dictionary.
-    param file_path: the path to the json file to be searched. It should be in our bmw-json schema.
-    param key: the key to be searched in dic.
-    return: the names of any direct descendant of every occurrence of the key in dic in a list.
-    """
-    path = file_path
-    if path == "": path = JSON_FILE_PATH
-    data_file = open(path, encoding="utf-8")
-    dic = json.loads(data_file.read())
-
-    itemList = finditem(dic, key)
-    desc = getDirectDescendants(itemList)
-    return desc
-
-
+JSON_FILE_PATH = "../tests/bmw-arch.json"
 
 
 def _breakdownDict(dic):
@@ -218,10 +119,6 @@ def searchByHardware(file_path, hardware):
 '''
 usage example
 '''
-
-#lis = findAndGetDirectDescendants("", "Context Groups")
-#lis = findAndGetDirectDescendants("", "Middleware")
-#print(lis)
 
 #domainlist = searchByDomain("", "navigation")
 #print(domainlist)
