@@ -48,6 +48,7 @@ def print_vertex_children(graph: Graph, vertex: int, degree=1):
     """
     BRANCH_FORK = "├─ "
     BRANCH_END = "└─ "
+    BRANCH_SELF = "● "
     TREE_TRUNK = "│  "
     TREE_EPMTY = "   "
 
@@ -65,8 +66,22 @@ def print_vertex_children(graph: Graph, vertex: int, degree=1):
 
         if out_degree and deg:
             for child in graph.get_out_neighbours(vtx)[:-1]:
-                print_recursive(child, deg - 1, indent, BRANCH_FORK)
-            print_recursive(graph.get_out_neighbours(vtx)[-1:], deg - 1, indent, BRANCH_END)
+                if child == vtx:
+                    print("%s%svertex[%d]" % (indent, branch[:-2] + BRANCH_SELF, child),
+                          "in-degree:", graph.vertex(child).in_degree(),
+                          "out-degree:", out_degree,
+                          "value:", graph.vp.vertex_name[child])
+                else:
+                    print_recursive(child, deg - 1, indent, BRANCH_FORK)
+
+            child = graph.get_out_neighbours(vtx)[-1:]
+            if child == vtx:
+                print("%s%svertex[%d]" % (indent, BRANCH_END[:-2] + BRANCH_SELF, child),
+                      "in-degree:", graph.vertex(child).in_degree(),
+                      "out-degree:", out_degree,
+                      "value:", graph.vp.vertex_name[child])
+            else:
+                print_recursive(child, deg - 1, indent, BRANCH_END)
 
     print_recursive(vertex, degree)
 
@@ -113,7 +128,7 @@ def main(argv):
     """
     parser = argparse.ArgumentParser(description="A program to analyse and explore large *.dot files.")
     parser.add_argument('file', type=str, metavar='FILE')
-    parser.add_argument('-c', '--children',  type=int, nargs='?', metavar='NODE_ID',
+    parser.add_argument('-c', '--children', type=int, metavar='NODE_ID',
                         help="Print the Node and its (sub-)children.")
     parser.add_argument('-p', '--print', action='store_true', help="Print all nodes and their details.")
     parser.add_argument('-s', '--search', type=str, nargs='+', metavar='SEARCH_STR', help="Search for the given node.")
@@ -129,7 +144,7 @@ def main(argv):
         graph = load_graph(args.file)
 
     if args.children:
-        print_vertex_children(graph, args.children, 2)
+        print_vertex_children(graph, args.children, 3)
 
     if args.print:
         print_graph_vertices(graph)
