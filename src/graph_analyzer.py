@@ -119,6 +119,45 @@ def find_hotspots(graph: Graph, top_length=0) -> list:
 
     return vtx_list
 
+def print_cycles(graph: Graph):
+    """
+    Check if graph is a DAG.
+    If this is not the case, all cycles in the graph are printed, together with a small statistic about cycle lengths.
+
+    :param graph: input graph
+    """
+    if is_DAG(graph):
+        print("Graph is a DAG. No cycles found!")
+        return
+    else:
+        print("Graph is not a DAG.")
+        cycles = list(all_circuits(graph))
+        cycles_by_length = dict()
+        for c in cycles:
+            if len(c) not in cycles_by_length:
+                cycles_by_length[len(c)] = list()
+            cycles_by_length[len(c)].append(c)
+
+        print("Cycles:")
+        print()
+        for i in sorted(cycles_by_length.keys()):
+            for c in cycles_by_length[i]:
+                print(c, end=": ")
+                print(graph.vp.vertex_name[c[0]], end="")
+                for v in c[1:]:
+                    print(" -> {}".format(graph.vp.vertex_name[v]), end="")
+                print()
+
+        print()
+        print("Found {} cycles in the graph.".format(len(cycles)))
+        print()
+        print("Number of cycles by length:")
+        print("Length | #")
+        print("-------+---")
+        for i in sorted(cycles_by_length.keys()):
+            print("{:>6} | {:<}".format(i, len(cycles_by_length[i])))
+
+
 
 def main(argv):
     """
@@ -134,6 +173,7 @@ def main(argv):
     parser.add_argument('-s', '--search', type=str, nargs='+', metavar='SEARCH_STR', help="Search for the given node.")
     parser.add_argument('-t', '--top', action='store_true',
                         help="Find the top nodes with the most connections (hotspots).")
+    parser.add_argument('--cycles', action='store_true', help="Find and print cycles in graph")
 
     args = parser.parse_args()
 
@@ -168,6 +208,9 @@ def main(argv):
                   "in-degree:", vtx.in_degree(),
                   "out-degree:", vtx.out_degree(),
                   "value:", graph.vp.vertex_name[vtx])
+
+    if args.cycles:
+        print_cycles(graph)
 
 
 if __name__ == "__main__":
