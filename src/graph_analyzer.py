@@ -67,6 +67,8 @@ def print_vertex_children(graph: Graph, vertex: int, degree=1):
         if out_degree and deg:
             for child in graph.get_out_neighbours(vtx)[:-1]:
                 if child == vtx:
+                    if not branch:
+                        branch += BRANCH_FORK
                     print("%s%svertex[%d]" % (indent, branch[:-2] + BRANCH_SELF, child),
                           "in-degree:", graph.vertex(child).in_degree(),
                           "out-degree:", out_degree,
@@ -76,6 +78,8 @@ def print_vertex_children(graph: Graph, vertex: int, degree=1):
 
             child = graph.get_out_neighbours(vtx)[-1:]
             if child == vtx:
+                if not branch:
+                    branch += BRANCH_END
                 print("%s%svertex[%d]" % (indent, BRANCH_END[:-2] + BRANCH_SELF, child),
                       "in-degree:", graph.vertex(child).in_degree(),
                       "out-degree:", out_degree,
@@ -119,9 +123,10 @@ def find_hotspots(graph: Graph, top_length=0) -> list:
 
     return vtx_list
 
+
 def print_cycles(graph: Graph):
     """
-    Check if graph is a DAG.
+    Check if graph is a directed acyclic graph (DAG).
     If this is not the case, all cycles in the graph are printed, together with a small statistic about cycle lengths.
 
     :param graph: input graph
@@ -156,7 +161,6 @@ def print_cycles(graph: Graph):
         print("-------+---")
         for i in sorted(cycles_by_length.keys()):
             print("{:>6} | {:<}".format(i, len(cycles_by_length[i])))
-
 
 
 def main(argv):
