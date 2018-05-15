@@ -54,10 +54,10 @@ def print_vertex_children(graph: Graph, vertex: int, degree=1):
 
     def print_recursive(vtx: int, deg=1, indent="", branch=""):
         out_degree = graph.vertex(vtx).out_degree()
-        print("%s%svertex[%d]" % (indent, branch, vtx),
-              "in-degree:", graph.vertex(vtx).in_degree(),
-              "out-degree:", out_degree,
-              "value:", graph.vp.vertex_name[vtx])
+        print("%s%svtx[%d]" % (indent, branch, vtx),
+              "in:", graph.vertex(vtx).in_degree(),
+              "out:", out_degree,
+              "val:", graph.vp.vertex_name[vtx])
 
         if branch == BRANCH_FORK:
             indent += TREE_TRUNK
@@ -69,10 +69,10 @@ def print_vertex_children(graph: Graph, vertex: int, degree=1):
                 if child == vtx:
                     if not branch:
                         branch += BRANCH_FORK
-                    print("%s%svertex[%d]" % (indent, branch[:-2] + BRANCH_SELF, child),
-                          "in-degree:", graph.vertex(child).in_degree(),
-                          "out-degree:", out_degree,
-                          "value:", graph.vp.vertex_name[child])
+                    print("%s%svtx[%d]" % (indent, branch[:-2] + BRANCH_SELF, child),
+                          "in:", graph.vertex(child).in_degree(),
+                          "out:", out_degree,
+                          "val:", graph.vp.vertex_name[child])
                 else:
                     print_recursive(child, deg - 1, indent, BRANCH_FORK)
 
@@ -80,10 +80,10 @@ def print_vertex_children(graph: Graph, vertex: int, degree=1):
             if child == vtx:
                 if not branch:
                     branch += BRANCH_END
-                print("%s%svertex[%d]" % (indent, BRANCH_END[:-2] + BRANCH_SELF, child),
-                      "in-degree:", graph.vertex(child).in_degree(),
-                      "out-degree:", out_degree,
-                      "value:", graph.vp.vertex_name[child])
+                print("%s%svtx[%d]" % (indent, BRANCH_END[:-2] + BRANCH_SELF, child),
+                      "in:", graph.vertex(child).in_degree(),
+                      "out:", out_degree,
+                      "val:", graph.vp.vertex_name[child])
             else:
                 print_recursive(child, deg - 1, indent, BRANCH_END)
 
@@ -260,10 +260,10 @@ def main(argv):
     if args.top:
         vertex_list = find_hotspots(graph)
         for vtx in vertex_list:
-            print("vertex[%d]" % vtx,
-                  "in-degree:", vtx.in_degree(),
-                  "out-degree:", vtx.out_degree(),
-                  "value:", graph.vp.vertex_name[vtx])
+            print("vtx[%d]" % vtx,
+                  "in:", vtx.in_degree(),
+                  "out:", vtx.out_degree(),
+                  "val:", graph.vp.vertex_name[vtx])
 
     if args.cycles:
         print_cycles(graph)
