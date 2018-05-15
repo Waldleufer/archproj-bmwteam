@@ -163,6 +163,56 @@ def print_cycles(graph: Graph):
             print("{:>6} | {:<}".format(i, len(cycles_by_length[i])))
 
 
+def find_subgraphs(graph: Graph) -> list:
+    """
+    Searches in the given graph for sub-graphs within the given range. The root of an sub-graph is determined by the
+    `max_independent_vertex_set()`-function provided by graph-tools.
+
+    :param graph: the graph to search in for sub-graphs
+    :return: a list of the found sub-graphs within the range
+    """
+    indie_nodes = max_independent_vertex_set(graph)
+    reduced_list = filter(lambda v: False if indie_nodes[v] else True, graph.get_vertices())
+    subgraph_list = []
+
+    for vtx in reduced_list:
+        filter_prop = graph.new_vertex_property("bool")
+        filter_prop.a[int(vtx)] = True
+
+        for child in graph.get_out_neighbours(vtx):
+            filter_prop.a[int(child)] = True
+
+        subgraph = GraphView(graph, vfilt=filter_prop)
+
+        # mark the root node with a different color
+        subgraph.vp["root"] = subgraph.new_vertex_property("bool")
+        subgraph.vp["root"].a[int(vtx)] = True
+
+        subgraph_list.append(subgraph)
+
+    return subgraph_list
+
+
+def export_subgraphs(subgraph_list: list, list_range=range(0, 20)):
+    """
+    Exports a given list of sub-graphs into a `../out/`-directory as `.svg`-files. Since this call may take a long time
+    to compute, it is also possible to export only a part of the given list. This makes splitting the task into various
+    chunks possible.
+
+    :param subgraph_list: the list containing the sub-graphs as `GraphView` objects.
+    :param list_range: a range to export only a part of the given input list
+    """
+    counter = list_range.start
+    for subgraph in subgraph_list:
+        graph_draw(subgraph,
+                   vertex_fill_color=subgraph.vp.root,
+                   vertex_text=subgraph.vertex_index,
+                   output="../out/sub" + str(counter) + ".svg")
+        counter += 1
+        if counter > list_range.stop:
+            break
+
+
 def main(argv):
     """
     Main function which parses the passed arguments.
@@ -177,7 +227,9 @@ def main(argv):
     parser.add_argument('-s', '--search', type=str, nargs='+', metavar='SEARCH_STR', help="Search for the given node.")
     parser.add_argument('-t', '--top', action='store_true',
                         help="Find the top nodes with the most connections (hotspots).")
-    parser.add_argument('--cycles', action='store_true', help="Find and print cycles in graph")
+    parser.add_argument('--cycles', action='store_true', help="Find and print cycles in graph.")
+    parser.add_argument('--subgraphs', action='store_true',
+                        help="Searches and outputs sub-graphs from the main graph.")
 
     args = parser.parse_args()
 
@@ -215,6 +267,10 @@ def main(argv):
 
     if args.cycles:
         print_cycles(graph)
+
+    if args.subgraphs:
+        sub_list = find_subgraphs(graph)
+        export_subgraphs(sub_list, range(0, 10))  # only export the first 10 subgraphs for testing
 
 
 if __name__ == "__main__":
