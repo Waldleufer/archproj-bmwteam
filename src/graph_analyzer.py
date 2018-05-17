@@ -163,6 +163,29 @@ def print_cycles(graph: Graph):
             print("{:>6} | {:<}".format(i, len(cycles_by_length[i])))
 
 
+def collect_subgraph_vertices(graph: Graph, root_idx: int) -> list:
+    """
+    Collects all children and sub-children of an given node and return the list of its indices.
+    Please ensure that the given graph has no cyclic dependencies before using this function.
+
+    :param graph: the input graph
+    :param root_idx: the root index of the sub-graph
+    :return: a list with all node indices of the sub-graph (fist element is always the root node)
+    """
+    vtx_list = []
+
+    def traverse_recursive(vtx: int):
+        vtx_list.append(vtx)
+        out_degree = graph.vertex(vtx).out_degree()
+        if out_degree:
+            for child in graph.get_out_neighbours(vtx):
+                if child != vtx:  # ignore self references
+                    traverse_recursive(child)
+
+    traverse_recursive(root_idx)
+    return vtx_list
+
+
 def find_subgraphs(graph: Graph) -> list:
     """
     Searches in the given graph for sub-graphs within the given range. The root of an sub-graph is determined by the
