@@ -19,6 +19,7 @@ from graph_tool.all import *
 import argparse
 import sys
 import math
+import os
 
 
 def print_graph_vertices(graph: Graph):
@@ -226,6 +227,10 @@ def export_subgraphs(subgraph_list: list, list_range=range(0, 20)):
     :param list_range: a range to export only a part of the given input list
     """
     counter = list_range.start
+
+    if not os.path.isdir("../out/"):
+        os.mkdir("../out/")
+
     for subgraph in subgraph_list:
         graph_draw(subgraph,
                    vertex_fill_color=subgraph.vp.root,
