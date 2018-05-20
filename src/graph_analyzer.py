@@ -164,32 +164,33 @@ def print_cycles(graph: Graph):
             print("{:>6} | {:<}".format(i, len(cycles_by_length[i])))
 
 
-def collect_subgraph_vertices(graph: Graph, root_idx: int) -> list:
+def collect_subgraph_vertices(graph: Graph, root_idx: int) -> set:
     """
-    Collects all children and sub-children of an given node and return the list of its indices.
-    Please ensure that the given graph has no cyclic dependencies before using this function.
+    Collects all children and sub-children of an given node and return a set of its indices.
+    In case of cyclic dependencies, the internal use of a `set` prevents a endless duplication of the nodes in the
+    output.
 
     :param graph: the input graph
     :param root_idx: the root index of the sub-graph
-    :return: a list with all node indices of the sub-graph (fist element is always the root node)
+    :return: a set with all node indices of the sub-graph (fist element is always the root node)
     """
-    vtx_list = []
+    vtx_set = set()
 
     def traverse_recursive(vtx: int):
-        vtx_list.append(vtx)
+        vtx_set.add(vtx)
         out_degree = graph.vertex(vtx).out_degree()
         if out_degree:
             for child in graph.get_out_neighbours(vtx):
-                if child != vtx:  # ignore self references
+                if child not in vtx_set and child != vtx:  # ignore self references and cyclic dependencies
                     traverse_recursive(child)
 
     traverse_recursive(root_idx)
-    return vtx_list
+    return vtx_set
 
 
 def find_subgraphs(graph: Graph) -> list:
     """
-    Searches in the given graph for sub-graphs within the given range. The root of an sub-graph is determined by the
+    Searches in the given graph for sub-graphs. The root of an sub-graph is determined by the
     `max_independent_vertex_set()`-function provided by graph-tools.
 
     :param graph: the graph to search in for sub-graphs
@@ -201,9 +202,9 @@ def find_subgraphs(graph: Graph) -> list:
 
     for vtx in reduced_list:
         filter_prop = graph.new_vertex_property("bool")
-        filter_prop.a[int(vtx)] = True
+        sub_set = collect_subgraph_vertices(graph, vtx)
 
-        for child in graph.get_out_neighbours(vtx):
+        for child in sub_set:
             filter_prop.a[int(child)] = True
 
         subgraph = GraphView(graph, vfilt=filter_prop)
