@@ -242,6 +242,28 @@ def export_subgraphs(subgraph_list: list, list_range=range(0, 20)):
             break
 
 
+def list_shared_sub_vertices(graph: Graph, vtx_a: int, vtx_b: int) -> list:
+    """
+    Creates a list with all common shared vertices between two sub-graphs including the root-vertex. Thereby all
+    children of each sub-graph where collected and matched against each other. If there is no match, a empty list gets
+    returned.
+
+    :param graph: the input graph
+    :param vtx_a: the first root-vertex of an sub-graph
+    :param vtx_b: the second root-vertex of an sub-graph
+    :return: a list with all common shared vertex indices or an empty list
+    """
+    sub_set_a = collect_subgraph_vertices(graph, vtx_a)
+    sub_set_b = collect_subgraph_vertices(graph, vtx_b)
+    shared_vertex_list = []
+
+    for vtx in sub_set_a:
+        if vtx in sub_set_b:
+            shared_vertex_list.append(vtx)
+
+    return shared_vertex_list
+
+
 def main(argv):
     """
     Main function which parses the passed arguments.
@@ -259,6 +281,8 @@ def main(argv):
     parser.add_argument('--cycles', action='store_true', help="Find and print cycles in graph.")
     parser.add_argument('--subgraphs', action='store_true',
                         help="Searches and outputs sub-graphs from the main graph.")
+    parser.add_argument('--shared', type=int, nargs=2, metavar='NODE_ID',
+                        help="Lists all common shared vertices of two sub-graphs.")
 
     args = parser.parse_args()
 
@@ -300,6 +324,11 @@ def main(argv):
     if args.subgraphs:
         sub_list = find_subgraphs(graph)
         export_subgraphs(sub_list, range(0, 10))  # only export the first 10 subgraphs for testing
+
+    if args.shared:
+        shared_vtx_list = list_shared_sub_vertices(graph, args.shared[0], args.shared[1])
+        print("Shared vertices:")
+        print(shared_vtx_list)
 
 
 if __name__ == "__main__":
