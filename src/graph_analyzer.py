@@ -312,7 +312,7 @@ def main(argv):
     """
     parser = argparse.ArgumentParser(description="A program to analyse and explore large *.dot files.")
     parser.add_argument('file', type=str, metavar='FILE')
-    parser.add_argument('-c', '--children', type=int, metavar='NODE_ID',
+    parser.add_argument('-c', '--children', type=int, nargs=1, metavar='NODE_ID',
                         help="Print the Node and its (sub-)children.")
     parser.add_argument('-p', '--print', action='store_true', help="Print all nodes and their details.")
     parser.add_argument('-s', '--search', type=str, nargs='+', metavar='SEARCH_STR', help="Search for the given node.")
@@ -335,7 +335,7 @@ def main(argv):
         graph = load_graph(args.file)
 
     if args.children:
-        print_vertex_children(graph, args.children, 3)
+        print_vertex_children(graph, args.children[0], 3)
 
     if args.print:
         print_graph_vertices(graph)
