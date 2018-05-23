@@ -15,11 +15,15 @@
 # limitations under the License.
 
 from graph_tool.all import *
+from time import gmtime, strftime
 
 import argparse
 import sys
 import math
 import os
+
+
+DEFAULT_OUTPUT_DIR = "../out/"
 
 
 def print_graph_vertices(graph: Graph):
@@ -172,7 +176,7 @@ def collect_subgraph_vertices(graph: Graph, root_idx: int) -> set:
 
     :param graph: the input graph
     :param root_idx: the root index of the sub-graph
-    :return: a set with all node indices of the sub-graph (fist element is always the root node)
+    :return: a set with all node indices of the sub-graph
     """
     vtx_set = set()
 
@@ -188,17 +192,17 @@ def collect_subgraph_vertices(graph: Graph, root_idx: int) -> set:
     return vtx_set
 
 
-def find_subgraphs(graph: Graph) -> list:
+def find_subgraphs(graph: Graph) -> dict:
     """
     Searches in the given graph for sub-graphs. The root of an sub-graph is determined by the
     `max_independent_vertex_set()`-function provided by graph-tools.
 
     :param graph: the graph to search in for sub-graphs
-    :return: a list of the found sub-graphs within the range
+    :return: a list of the found sub-graphs
     """
     indie_nodes = max_independent_vertex_set(graph)
     reduced_list = filter(lambda v: False if indie_nodes[v] else True, graph.get_vertices())
-    subgraph_list = []
+    subgraph_dict = {}
 
     for vtx in reduced_list:
         filter_prop = graph.new_vertex_property("bool")
@@ -213,45 +217,45 @@ def find_subgraphs(graph: Graph) -> list:
         subgraph.vp["root"] = subgraph.new_vertex_property("bool")
         subgraph.vp["root"].a[int(vtx)] = True
 
-        subgraph_list.append(subgraph)
+        subgraph_dict[int(vtx)] = subgraph
 
-    return subgraph_list
+    return subgraph_dict
 
 
-def export_subgraphs(subgraph_list: list, list_range=range(0, 20)):
+def export_subgraphs(subgraph_dict: dict, dict_range=range(0, 20)):
     """
     Exports a given list of sub-graphs into a `../out/`-directory as `.svg`-files. Since this call may take a long time
     to compute, it is also possible to export only a part of the given list. This makes splitting the task into various
     chunks possible.
 
-    :param subgraph_list: the list containing the sub-graphs as `GraphView` objects.
-    :param list_range: a range to export only a part of the given input list
+    :param subgraph_dict: the dictionary containing the root-vertex and the sub-graph as `int` and `GraphView` objects.
+    :param dict_range: a range to export only a part of the given input dict
     """
-    counter = list_range.start
+    counter = dict_range.start
 
-    if not os.path.isdir("../out/"):
-        os.mkdir("../out/")
+    if not os.path.isdir(DEFAULT_OUTPUT_DIR):
+        os.mkdir(DEFAULT_OUTPUT_DIR)
 
-    for subgraph in subgraph_list:
+    for root, subgraph in subgraph_dict.items():
         graph_draw(subgraph,
                    vertex_fill_color=subgraph.vp.root,
                    vertex_text=subgraph.vertex_index,
-                   output="../out/sub" + str(counter) + ".svg")
+                   output=DEFAULT_OUTPUT_DIR + "sub" + str(counter) + ".svg")
         counter += 1
-        if counter > list_range.stop:
+        if counter > dict_range.stop:
             break
 
 
 def list_shared_sub_vertices(graph: Graph, vtx_a: int, vtx_b: int) -> list:
     """
     Creates a list with all common shared vertices between two sub-graphs including the root-vertex. Thereby all
-    children of each sub-graph where collected and matched against each other. If there is no match, a empty list gets
+    children of each sub-graph where collected and matched against each other. If there is no match, a empty list is
     returned.
 
     :param graph: the input graph
     :param vtx_a: the first root-vertex of an sub-graph
     :param vtx_b: the second root-vertex of an sub-graph
-    :return: a list with all common shared vertex indices or an empty list
+    :return: a list with all common shared vertex indices or a empty list
     """
     sub_set_a = collect_subgraph_vertices(graph, vtx_a)
     sub_set_b = collect_subgraph_vertices(graph, vtx_b)
@@ -262,6 +266,42 @@ def list_shared_sub_vertices(graph: Graph, vtx_a: int, vtx_b: int) -> list:
             shared_vertex_list.append(vtx)
 
     return shared_vertex_list
+
+
+def exclude_subgraph(graph: Graph, sub_vtx) -> GraphView:
+    """
+    Removes the given sub-graph from the source graph and stores the result in a new `GraphView` object. This function
+    can be used recursive on it's self.
+
+    :param graph: the input graph
+    :param sub_vtx: the root node of the sub-graph
+    :return: a new `GraphView` without the children of the given sub-graph (the sub-graph root-node is kept)
+    """
+    sub_set = collect_subgraph_vertices(graph, sub_vtx)
+    filter_prop = graph.new_vertex_property("bool")
+    filter_prop.a[int(sub_vtx)] = True  # keep the root-vertex of the sub-graph
+    for vtx in graph.get_vertices():
+        if vtx not in sub_set:
+            filter_prop.a[int(vtx)] = True
+
+    out_graph = GraphView(graph, vfilt=filter_prop)
+    return out_graph
+
+
+def export_graph(graph: Graph, out_file=""):
+    """
+    Exports the given `Graph` or `GraphView`-object into a *.gt-file.
+
+    :param graph: the `Graph` or `GraphView`-object to export
+    :param out_file: the file name or a timestamp on default
+    """
+    if not out_file:
+        out_file = strftime("%Y-%m-%d_%H:%M:%S", gmtime())  # use timestamp as default file name
+
+    if not os.path.isdir(DEFAULT_OUTPUT_DIR):
+        os.mkdir(DEFAULT_OUTPUT_DIR)
+
+    graph.save(DEFAULT_OUTPUT_DIR + out_file + ".gt")
 
 
 def main(argv):
@@ -283,6 +323,8 @@ def main(argv):
                         help="Searches and outputs sub-graphs from the main graph.")
     parser.add_argument('--shared', type=int, nargs=2, metavar='NODE_ID',
                         help="Lists all common shared vertices of two sub-graphs.")
+    parser.add_argument('--exclude', type=int, nargs=1, metavar='SUB_ROOT_NODE_ID',
+                        help="Excludes the given sub-graph and exports the remaining graph as *.gt-file.")
 
     args = parser.parse_args()
 
@@ -322,13 +364,16 @@ def main(argv):
         print_cycles(graph)
 
     if args.subgraphs:
-        sub_list = find_subgraphs(graph)
-        export_subgraphs(sub_list, range(0, 10))  # only export the first 10 subgraphs for testing
+        sub_dict = find_subgraphs(graph)
+        export_subgraphs(sub_dict, range(0, 10))  # only export the first 10 subgraphs for testing
 
     if args.shared:
         shared_vtx_list = list_shared_sub_vertices(graph, args.shared[0], args.shared[1])
         print("Shared vertices:")
         print(shared_vtx_list)
+
+    if args.exclude:
+        export_graph(exclude_subgraph(graph, args.exclude[0]))
 
 
 if __name__ == "__main__":
