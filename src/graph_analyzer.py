@@ -16,6 +16,7 @@
 
 from graph_tool.all import *
 from time import gmtime, strftime
+from enum import Enum
 
 import argparse
 import sys
@@ -192,6 +193,73 @@ def collect_subgraph_vertices(graph: Graph, root_idx: int) -> set:
     return vtx_set
 
 
+class SelectionMode(Enum):
+    ALL = 0
+    INDEPENDENT = 1
+
+
+def detect_subgraphs(graph: Graph, is_verbose=True, selection=SelectionMode.ALL):
+    """
+    Detects sub-graphs in the given input graph.
+
+    :param graph: the input graph
+    :param is_verbose: prints output in human readable form or as raw vertex indices for automated processing/piping
+    :param selection: the enum which defines the kind of sub-graphs to be printed
+                      `ALL`: all detected sub-graphs which may also contain further sub-graphs
+                      `INDEPENDENT`: only sub-graphs without any other sub-graphs in it
+    """
+    indie_nodes = max_independent_vertex_set(graph)
+    sub_roots = []
+    for vtx in graph.get_vertices():
+        # check if vertex is a subgraph-root and not a leave-node
+        if not indie_nodes[vtx] and graph.vertex(vtx).out_degree() > 0:
+            sub_roots.append(int(vtx))
+
+    def find_related_sub() -> list:
+        related_subgraphs_list = []
+        for v in sub_roots:
+            sub_children = collect_subgraph_vertices(graph, v)
+            sub_children.remove(v)  # remove root-node
+
+            for sub_vtx in sub_roots:
+                if sub_vtx in sub_children:
+                    related_subgraphs_list.append(v)
+                    break
+        return related_subgraphs_list
+
+    if is_verbose:  # human readable output
+        if selection == SelectionMode.ALL:
+            print("Found %s sub-graphs:" % len(sub_roots))
+            for vtx in sub_roots:
+                sub = collect_subgraph_vertices(graph, vtx)
+                sub.remove(vtx)  # remove root-node
+                print("sub[%s]" % vtx, "has", len(sub), "children, val:", graph.vp.vertex_name[vtx])
+
+                for vtx_sub in sub_roots:
+                    if vtx_sub in sub:
+                        print("\t - includes sub[%s]" % vtx_sub, " val:", graph.vp.vertex_name[vtx_sub])
+
+        elif selection == SelectionMode.INDEPENDENT:
+            independent_sub_list = []
+            related_sub_list = find_related_sub()
+            for vtx in sub_roots:
+                if vtx not in related_sub_list:
+                    independent_sub_list.append(vtx)
+            print("Found %s independent sub-graphs:" % len(independent_sub_list))
+            for vtx in independent_sub_list:
+                print("sub[%s]" % vtx, "val:", graph.vp.vertex_name[vtx])
+
+    else:  # raw output which could be piped in shell
+        if selection == SelectionMode.ALL:
+            for vtx in sub_roots:
+                print("%s " % vtx, end="")
+        elif selection == SelectionMode.INDEPENDENT:
+            related_sub_list = find_related_sub()
+            for vtx in sub_roots:
+                if vtx not in related_sub_list:
+                    print("%s " % vtx, end="")
+
+
 def find_subgraphs(graph: Graph) -> dict:
     """
     Searches in the given graph for sub-graphs. The root of an sub-graph is determined by the
@@ -364,8 +432,7 @@ def main(argv):
         print_cycles(graph)
 
     if args.subgraphs:
-        sub_dict = find_subgraphs(graph)
-        export_subgraphs(sub_dict, range(0, 10))  # only export the first 10 subgraphs for testing
+        detect_subgraphs(graph, SelectionMode.ALL)
 
     if args.shared:
         shared_vtx_list = list_shared_sub_vertices(graph, args.shared[0], args.shared[1])
