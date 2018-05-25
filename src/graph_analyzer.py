@@ -27,21 +27,20 @@ import os
 DEFAULT_OUTPUT_DIR = "../out/"
 
 
-def print_graph_vertices(graph: Graph):
+def print_graph_vertex(graph: Graph, vertex: int):
     """
-    Prints some information about the vertices in the given graph.
+    Prints some information about the given node (a.k.a. vertex).
     'in-degree': The number of edges to parent nodes.
     'out-degree': The number of edges to child nodes.
     'value': The name of the node.
 
     :param graph: the graph to print
+    :param vertex: optional list of vertices to print out
     """
-    # print detailed vertex data
-    for vtx in graph.vertices():
-        print("vertex[%d]" % vtx,
-              "in-degree:", vtx.in_degree(),
-              ", out-degree:", vtx.out_degree(),
-              ", value:", graph.vp.vertex_name[vtx])
+    print("vtx[%d]" % vertex,
+          "in:", graph.vertex(vertex).in_degree(),
+          "out:", graph.vertex(vertex).out_degree(),
+          "val:", graph.vp.vertex_name[vertex])
 
 
 def print_vertex_children(graph: Graph, vertex: int, degree=1):
@@ -382,7 +381,8 @@ def main(argv):
     parser.add_argument('file', type=str, metavar='FILE')
     parser.add_argument('-c', '--children', type=int, nargs=1, metavar='NODE_ID',
                         help="Print the Node and its (sub-)children.")
-    parser.add_argument('-p', '--print', action='store_true', help="Print all nodes and their details.")
+    parser.add_argument('-p', '--print', type=int, nargs='+', metavar='NODE_ID',
+                        help="Print some details about the given node(s).")
     parser.add_argument('-s', '--search', type=str, nargs='+', metavar='SEARCH_STR', help="Search for the given node.")
     parser.add_argument('-t', '--top', action='store_true',
                         help="Find the top nodes with the most connections (hotspots).")
@@ -393,6 +393,9 @@ def main(argv):
                         help="Lists all common shared vertices of two sub-graphs.")
     parser.add_argument('--exclude', type=int, nargs=1, metavar='SUB_ROOT_NODE_ID',
                         help="Excludes the given sub-graph and exports the remaining graph as *.gt-file.")
+    parser.add_argument('-r', '--raw', action='store_true',
+                        help="Enable raw output format for further automated processing or piping. This option is "
+                             "supported by '--search', '--children', '--top', '--subgraphs', '--shared'.")
 
     args = parser.parse_args()
 
@@ -403,41 +406,60 @@ def main(argv):
         graph = load_graph(args.file)
 
     if args.children:
-        print_vertex_children(graph, args.children[0], 3)
+        if args.raw:
+            for vtx in collect_subgraph_vertices(graph, args.children[0]):
+                print("%s " % vtx, end="")
+        else:
+            print_vertex_children(graph, args.children[0], 3)
 
     if args.print:
-        print_graph_vertices(graph)
+        for vtx in args.print:
+            print_graph_vertex(graph, vtx)
 
     if args.search:
         for search_str in args.search:
             vertex_list = search_vertices(graph, search_str)
-            list_len = len(vertex_list)
-            if list_len:
-                print("Found %d results for '%s':" % (list_len, search_str))
+
+            if args.raw:
                 for vtx in vertex_list:
-                    vtx_value = graph.vp.vertex_name[vtx]
-                    print("vertex[%s]" % int(vtx), vtx_value)
+                    print("%s " % vtx, end="")
             else:
-                print("No results found for '%s'." % search_str)
+                list_len = len(vertex_list)
+                if list_len:
+                    print("Found %d results for '%s':" % (list_len, search_str))
+                    for vtx in vertex_list:
+                        vtx_value = graph.vp.vertex_name[vtx]
+                        print("vertex[%s]" % int(vtx), vtx_value)
+                else:
+                    print("No results found for '%s'." % search_str)
 
     if args.top:
         vertex_list = find_hotspots(graph)
-        for vtx in vertex_list:
-            print("vtx[%d]" % vtx,
-                  "in:", vtx.in_degree(),
-                  "out:", vtx.out_degree(),
-                  "val:", graph.vp.vertex_name[vtx])
+
+        if args.raw:
+            for vtx in vertex_list:
+                print("%s " % vtx, end="")
+        else:
+            for vtx in vertex_list:
+                print("vtx[%d]" % vtx,
+                      "in:", vtx.in_degree(),
+                      "out:", vtx.out_degree(),
+                      "val:", graph.vp.vertex_name[vtx])
 
     if args.cycles:
         print_cycles(graph)
 
     if args.subgraphs:
-        detect_subgraphs(graph, SelectionMode.ALL)
+        detect_subgraphs(graph, not args.raw, SelectionMode.ALL)
 
     if args.shared:
         shared_vtx_list = list_shared_sub_vertices(graph, args.shared[0], args.shared[1])
-        print("Shared vertices:")
-        print(shared_vtx_list)
+        if args.raw:
+            for vtx in shared_vtx_list:
+                print("%s " % vtx, end="")
+        else:
+            print("Shared vertices:")
+            print(shared_vtx_list)
 
     if args.exclude:
         export_graph(exclude_subgraph(graph, args.exclude[0]))
