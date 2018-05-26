@@ -83,8 +83,8 @@ character sequence "an" and print the details about the found nodes with the `--
 ```
 ./graph_analyzer.py ../tests/test01.dot -p `./graph_analyzer.py ../tests/test01.dot -r -s an`
 ```
-Note that the second part is enclosed in back-ticks \` so that the `bash` interprets the result (in
-this case `1 6`) as arguments for the first command part.
+Note that the second part is enclosed in back-ticks <code>\`</code> so that the `bash` interprets
+the result (in this case `1 6`) as arguments for the first command part.
 
 The resulting output is:
 ```
