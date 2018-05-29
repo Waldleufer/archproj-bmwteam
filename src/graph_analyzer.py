@@ -387,15 +387,19 @@ def main(argv):
     parser.add_argument('-t', '--top', action='store_true',
                         help="Find the top nodes with the most connections (hotspots).")
     parser.add_argument('--cycles', action='store_true', help="Find and print cycles in graph.")
-    parser.add_argument('--subgraphs', action='store_true',
-                        help="Searches and outputs sub-graphs from the main graph.")
+    parser.add_argument('-ss', '--subgraphs', action='store_true',
+                        help="Searches and outputs all sub-graphs from the main graph.")
+    parser.add_argument('-sis', '--independent-subgraphs', action='store_true',
+                        help="Searches and lists all independent sub-graphs (sub-graphs without any other sub-graphs "
+                             "in it).")
     parser.add_argument('--shared', type=int, nargs=2, metavar='NODE_ID',
                         help="Lists all common shared vertices of two sub-graphs.")
     parser.add_argument('--exclude', type=int, nargs=1, metavar='SUB_ROOT_NODE_ID',
                         help="Excludes the given sub-graph and exports the remaining graph as *.gt-file.")
     parser.add_argument('-r', '--raw', action='store_true',
                         help="Enable raw output format for further automated processing or piping. This option is "
-                             "supported by '--search', '--children', '--top', '--subgraphs', '--shared'.")
+                             "supported by '--search', '--children', '--top', '--subgraphs',"
+                             "'--independent-subgraphs', '--shared'.")
 
     args = parser.parse_args()
 
@@ -463,6 +467,9 @@ def main(argv):
 
     if args.exclude:
         export_graph(exclude_subgraph(graph, args.exclude[0]))
+
+    if args.independent_subgraphs:
+        detect_subgraphs(graph, not args.raw, SelectionMode.INDEPENDENT)
 
 
 if __name__ == "__main__":
