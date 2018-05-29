@@ -335,6 +335,23 @@ def list_shared_sub_vertices(graph: Graph, vtx_a: int, vtx_b: int) -> list:
     return shared_vertex_list
 
 
+def exclude_nodes(graph: Graph, excluding_vertex_list: list) -> GraphView:
+    """
+    Removes the given nodes (vertices) from the source graph and stores the result in a new `GraphView`-object. If
+    a removed node has children, all the children and their sub-children getting removed as well.
+
+    :param graph: the input graph
+    :param excluding_vertex_list: a list with all vertices which should be excluded
+    :return: a new `GraphView` without the vertices of the given list
+    """
+    filter_prop = graph.new_vertex_property("bool")
+    for vtx in graph.get_vertices():
+        if vtx not in excluding_vertex_list:
+            filter_prop.a[int(vtx)] = True
+
+    return GraphView(graph, vfilt=filter_prop)
+
+
 def exclude_subgraph(graph: Graph, sub_vtx) -> GraphView:
     """
     Removes the given sub-graph from the source graph and stores the result in a new `GraphView` object. This function
@@ -394,6 +411,9 @@ def main(argv):
                              "in it).")
     parser.add_argument('--shared', type=int, nargs=2, metavar='NODE_ID',
                         help="Lists all common shared vertices of two sub-graphs.")
+    parser.add_argument('-en', '--exclude-nodes', type=int, nargs='+', metavar='NODE_ID',
+                        help="Excludes the given nodes (and their children) and exports the remaining graph as"
+                             "*.gt-file.")
     parser.add_argument('-es', '--exclude-subgraphs', type=int, nargs='+', metavar='SUB_ROOT_NODE_ID',
                         help="Excludes the given sub-graphs (without root node) and exports the remaining graph as " 
                              "*.gt-file.")
@@ -476,6 +496,11 @@ def main(argv):
 
         print("excluded %d sub-graphs" % len(args.remove_subgraphs))
         export_graph(sub)
+
+    if args.exclude_nodes:
+        out_graph = exclude_nodes(graph, args.exclude_nodes)
+        print("excluded %d nodes" % len(args.exclude_nodes))
+        export_graph(out_graph)
 
 
 if __name__ == "__main__":
