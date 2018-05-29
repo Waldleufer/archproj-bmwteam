@@ -394,8 +394,9 @@ def main(argv):
                              "in it).")
     parser.add_argument('--shared', type=int, nargs=2, metavar='NODE_ID',
                         help="Lists all common shared vertices of two sub-graphs.")
-    parser.add_argument('--exclude', type=int, nargs=1, metavar='SUB_ROOT_NODE_ID',
-                        help="Excludes the given sub-graph and exports the remaining graph as *.gt-file.")
+    parser.add_argument('-es', '--exclude-subgraphs', type=int, nargs='+', metavar='SUB_ROOT_NODE_ID',
+                        help="Excludes the given sub-graphs (without root node) and exports the remaining graph as " 
+                             "*.gt-file.")
     parser.add_argument('-r', '--raw', action='store_true',
                         help="Enable raw output format for further automated processing or piping. This option is "
                              "supported by '--search', '--children', '--top', '--subgraphs',"
@@ -465,11 +466,16 @@ def main(argv):
             print("Shared vertices:")
             print(shared_vtx_list)
 
-    if args.exclude:
-        export_graph(exclude_subgraph(graph, args.exclude[0]))
-
     if args.independent_subgraphs:
         detect_subgraphs(graph, not args.raw, SelectionMode.INDEPENDENT)
+
+    if args.exclude_subgraphs:
+        sub = graph
+        for sub_vtx in args.remove_subgraphs:
+            sub = exclude_subgraph(sub, sub_vtx)
+
+        print("excluded %d sub-graphs" % len(args.remove_subgraphs))
+        export_graph(sub)
 
 
 if __name__ == "__main__":
