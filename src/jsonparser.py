@@ -42,12 +42,21 @@ def _breakdown_dict(dic):
 
 def all_components(file_path):
     """
-    TODO: description and implementation of the function that yields the output of a list of all components in the file
-    :param file_path:
-    :return: a list of all components in the file
+    Returns a list of every component inside a json file using our bmw-json schema
+    :param file_path: path to the file
+    :return: a list of every component in the given json file.
     """
 
-    componentlist = ""
+    path = file_path
+    if path == "":
+        path = JSON_FILE_PATH
+    data_file = open(path, encoding="utf-8")
+    dic = json.loads(data_file.read())
+
+    modules = _breakdown_dict(dic)
+    componentlist = []
+    for k, v in modules.items():
+        componentlist.append(k)
 
     return componentlist
 
@@ -120,6 +129,7 @@ def search_by_abstraction(file_path, abstraction_layer):
     # It contains every abstraction_layer.
     # abstractionLayers = ["Presentation", "Middleware", "Middleware - OnlineApp platform", "Services",
     # "Presentation - OnlineApps",
+    # "Presentation - HMI",
     # "Services - Telematics platform - Infrastructure", "Services - Telematics platform - Iterface-vehicle",
     # "System Infrastructure - off-the-shelf", "System Infrastructure - off-the-shelf - compression",
     # "System Infrastructure - off-the-shelf - rendering", "System Infrastructure - off-the-shelf - imaging",
@@ -138,8 +148,8 @@ def search_by_abstraction(file_path, abstraction_layer):
     modules = _breakdown_dict(dic)
     abstraction_layer_list = []
     for k, v in modules.items():
-        # if(v["abstraction_layer"] not in abstractionLayers and v["abstraction_layer"] is not None):
-        if v["abstraction_layer"] == abstraction_layer:
+        # if(v["abstractionLayer"] not in abstractionLayers and v["abstractionLayer"] is not None):
+        if v["abstractionLayer"] == abstraction_layer:
             abstraction_layer_list.append(k)
     return abstraction_layer_list
 
@@ -197,8 +207,7 @@ def main(argv):
             line_print(search_by_abstraction(args.file, abstraction))
 
     if args.all:
-        print(all_components(args.file))
-        # TODO: The function needed is not yet implemented
+        line_print(all_components(args.file))
 
 
 if __name__ == "__main__":
