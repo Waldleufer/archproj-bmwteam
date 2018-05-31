@@ -17,7 +17,7 @@
 import argparse
 import sys
 import os
-
+from typing import Any, Union
 
 DEFAULT_OUTPUT_DIR = "../out/"
 
@@ -31,12 +31,17 @@ def create_grep_argument(search_str: str):
 
     :type search_str: str
     :param search_str: the string in the upperhand specified format
-    :return the ready-to-be-parsed string
+    :return the list with all ready-to-be-parsed strings
     """
-    out = ""
+    pre = ""
+    out = list()
     words = search_str.split(";")
-    for word in words:
-        out += '| grep -i "' + word + '"'
+    for wdiff in words:
+        split = wdiff.split("&")
+        for wunion in split:
+            pre += '| grep -i "' + wunion + '" '
+        out.append(pre)
+
     return out
 
 
@@ -55,8 +60,10 @@ def main(argv):
         print("Try 'graph_analyzer -h' for more information.")
         sys.exit(1)
     else:
-        exec_string = create_grep_argument(args.searchstring)
-        os.system("cat " + args.file + " " + exec_string)
+        exec_strings = create_grep_argument(args.searchstring)
+        s: str
+        for s in exec_strings:
+            os.system("cat " + args.file + " " + s)
 
 
 if __name__ == "__main__":
