@@ -21,7 +21,6 @@ import grep_adapter
 import argparse
 
 
-
 def validate(input_jsonnames: str, input_dotfile):
     """
     this script will give you a list of the components and will repeat the components name if there is NO Match

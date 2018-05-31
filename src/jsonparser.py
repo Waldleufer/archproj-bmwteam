@@ -187,7 +187,7 @@ def main(argv):
                         help="find all names of a given context group")
     parser.add_argument('-a', '--abstractionLayer', type=str, nargs='+', metavar='ABSTRACTION_LAYER_NAME',
                         help="find all names of a given abstraction layer")
-    parser.add_argument('-all', help="output of all components regardless of position")
+    parser.add_argument('-all', action='store_true', help="output of all components regardless of position")
     args = parser.parse_args()
 
     if not args.file:
