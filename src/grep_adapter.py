@@ -22,7 +22,7 @@ import os
 DEFAULT_OUTPUT_DIR = "../out/"
 
 
-def create_grep_argument(search_str: str):
+def create_grep_arguments(search_str: str):
     """
     creates a executable comand line argument from a given input string with the format word1[;word2[;wordn]]
     intended useage is cat Inputfile X
