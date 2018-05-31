@@ -52,12 +52,12 @@ def main(argv):
     :param argv: the argument list passed by the command line
     """
     parser = argparse.ArgumentParser(description="A adapter to search for a component from the json file")
-    parser.add_argument('file', type=str, metavar='FILE', help="Search for the given string.")
+    parser.add_argument('file', type=str, metavar='FILE', help="File that should be searched through.")
     parser.add_argument('searchstring', type=str, metavar='SEARCH_STR', help='Search for the given string.')
     args = parser.parse_args()
 
     if (not args.file) or (not args.searchstring):
-        print("Try 'graph_analyzer -h' for more information.")
+        print("Try 'grep_adapter -h' for more information.")
         sys.exit(1)
     else:
         exec_strings = create_grep_argument(args.searchstring)
