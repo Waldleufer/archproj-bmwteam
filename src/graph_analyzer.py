@@ -17,12 +17,13 @@
 from graph_tool.all import *
 from time import gmtime, strftime
 from enum import Enum
+from utils.unconnected_graphs import UnconnectedGraphs
 
 import argparse
 import sys
 import math
 import os
-
+import itertools
 
 DEFAULT_OUTPUT_DIR = "../out/"
 
@@ -388,6 +389,48 @@ def export_graph(graph: Graph, out_file=""):
     graph.save(DEFAULT_OUTPUT_DIR + out_file + ".gt")
 
 
+def nodes_connected(graph: Graph, nodes: list):
+    """
+    Check weather the given list of nodes are connected in the graph.
+    For this, the shortest paths between all node combinations is collected.
+    Afterwards, it is checked if those paths are all connected.
+    Returns true/false.
+
+    :param graph: the input graph
+    :param nodes: list of node IDs or node names
+    :return: true if all nodes connected, false otherwise
+    """
+    # Convert all node names in the list to vertices:
+    node_names = [n for n in nodes if not n.isdigit()]
+    node_vertices = [graph.vertex(int(n)) for n in nodes if isinstance(n, int) or n.isdigit()]
+    for vtx in graph.vertices():
+        if graph.vp.vertex_name[vtx] in node_names:
+            node_names.remove(graph.vp.vertex_name[vtx])
+            node_vertices.append(vtx)
+    if len(node_names) > 0:
+        print("Warning: The following node names could not be found in the graph and will be ignored:", node_names)
+
+    # Filter graph by input nodes and the shortest paths between them:
+    vprop_filter = graph.new_vertex_property("bool")
+    eprop_filter = graph.new_edge_property("bool")
+    for v in node_vertices:
+        vprop_filter[v] = True
+    for (a, b) in itertools.product(node_vertices, node_vertices):
+        v_list, e_list = shortest_path(graph, a, b)
+        for v in v_list:
+            vprop_filter[v] = True
+        for e in e_list:
+            eprop_filter[e] = True
+    graph_filtered = GraphView(graph, vfilt=vprop_filter, efilt=eprop_filter)
+    #graph_draw(graph_filtered, vertex_text=graph_filtered.vp.vertex_name)
+
+    # Check if the graph only consists of one graph
+    if len(list(UnconnectedGraphs(graph_filtered))) == 1:
+        return True
+    else:
+        return False
+
+
 def main(argv):
     """
     Main function which parses the passed arguments.
@@ -404,6 +447,9 @@ def main(argv):
     parser.add_argument('-t', '--top', action='store_true',
                         help="Find the top nodes with the most connections (hotspots).")
     parser.add_argument('--cycles', action='store_true', help="Find and print cycles in graph.")
+    parser.add_argument('--nodes-connected', type=str, nargs='+', metavar='NODE_ID',
+                        help="Check if a list of nodes (id, name) have a connection in the graph. Connections may be "
+                             "indirect, e.g. with other nodes in between. Outputs yes/no.")
     parser.add_argument('-ss', '--subgraphs', action='store_true',
                         help="Searches and outputs all sub-graphs from the main graph.")
     parser.add_argument('-sis', '--independent-subgraphs', action='store_true',
@@ -415,7 +461,7 @@ def main(argv):
                         help="Excludes the given nodes (and their children) and exports the remaining graph as"
                              "*.gt-file.")
     parser.add_argument('-es', '--exclude-subgraphs', type=int, nargs='+', metavar='SUB_ROOT_NODE_ID',
-                        help="Excludes the given sub-graphs (without root node) and exports the remaining graph as " 
+                        help="Excludes the given sub-graphs (without root node) and exports the remaining graph as "
                              "*.gt-file.")
     parser.add_argument('-r', '--raw', action='store_true',
                         help="Enable raw output format for further automated processing or piping. This option is "
@@ -501,6 +547,12 @@ def main(argv):
         out_graph = exclude_nodes(graph, args.exclude_nodes)
         print("excluded %d nodes" % len(args.exclude_nodes))
         export_graph(out_graph)
+
+    if args.nodes_connected:
+        if nodes_connected(graph, args.nodes_connected):
+            print("yes")
+        else:
+            print("no")
 
 
 if __name__ == "__main__":
