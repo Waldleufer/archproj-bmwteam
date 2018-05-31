@@ -17,7 +17,7 @@
 import argparse
 import sys
 import os
-from typing import Any, Union
+
 
 DEFAULT_OUTPUT_DIR = "../out/"
 
