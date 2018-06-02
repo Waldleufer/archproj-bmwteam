@@ -65,31 +65,48 @@ This means our example is a directed acyclic graph (DAG) and has no cyclic depen
 if there occurs a cycle in the graph, the involved indices and values are getting listed
 accordingly.
 
-A search for one ore multiple terms can be done with `-s` or `--search` e.g.
-`./graph_analyzer.py ../tests/test01.dot -s an`
+A case sensitive search for one ore multiple terms can be done with `-s` or `--search` e.g.
+`./graph_analyzer.py ../tests/test01.dot -s an Ap`
 
-The output would be:
+The output for this example would be:
 ```
 Found 2 results for 'an':
 vertex[1] Banana
 vertex[6] Mango
+Found 1 results for 'Ap':
+vertex[0] Apple
 ```
+To reduce the work of defining the search terms over and over again, we can also store them in a
+regular text file and pipe the content via `cat` into the script. Given the file `search_terms.txt`
+with the following content:
+```
+an Ap
+``` 
+Now we can simply invoke
+```bash
+./graph_analyzer.py ../tests/test01.dot -r -s `cat search_terms.txt`
+```
+and we get the exact same result as shown before. By this way, it is easy to create and handle
+huge lists of search terms or node-vertices without typing them manually in the terminal window.
+
+Note that the second part is enclosed in back-ticks <code>\`</code> so that the `bash` interprets
+the resulting sequence (in this case `1 6 0`) as arguments for the first command part.
 
 We also can use the search-option in combination with the `--raw` or `-r`-option to provide a 
 machine readable output of the search results. This means only the indices are printed to std-out
 which could be piped into a file or to another program. Let's try this by searching for the
-character sequence "an" and print the details about the found nodes with the `--print` or
-`-p`-option:
+character sequence "an" and "Ap" like before and print out the details about the found nodes with
+the `--print` or `-p`-option:
+```bash
+./graph_analyzer.py ../tests/test01.dot -p `./graph_analyzer.py ../tests/test01.dot -r -s an Ap`
 ```
-./graph_analyzer.py ../tests/test01.dot -p `./graph_analyzer.py ../tests/test01.dot -r -s an`
-```
-Note that the second part is enclosed in back-ticks <code>\`</code> so that the `bash` interprets
-the result (in this case `1 6`) as arguments for the first command part.
 
 The resulting output is:
 ```
 vtx[1] in: 1 out: 0 val: Banana
 vtx[6] in: 1 out: 0 val: Mango
+vtx[0] in: 1 out: 2 val: Apple
 ```
-The `--raw` output works also in combination with `--children`, `--top`, `--subgraphs`, `--shared`.
+The `--raw` output works also in combination with `--children`, `--top`, `--subgraphs` and
+`--shared` option.
 
