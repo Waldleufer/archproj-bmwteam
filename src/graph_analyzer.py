@@ -96,13 +96,13 @@ def print_vertex_children(graph: Graph, vertex: int, degree=1):
     print_recursive(vertex, degree)
 
 
-def search_vertices(graph: Graph, search_str: str) -> list:
+def search_vertices(graph: Graph, search_str: str) -> set:
     """
     Searches for nodes which contain the given search string (case sensitive).
 
     :param graph: the graph containing the nodes
     :param search_str: the string to search for in the node name
-    :return: a list of the found vertices or a empty list
+    :return: a set of the found vertices or a empty set
     """
     vtx_list = []
     for vtx in graph.vertices():
@@ -533,16 +533,16 @@ def main(argv):
 
     if args.search:
         for search_str in args.search:
-            vertex_list = search_vertices(graph, search_str)
+            vertex_set = search_vertices(graph, search_str)
 
             if args.raw:
-                for vtx in vertex_list:
+                for vtx in vertex_set:
                     print("%s " % vtx, end="")
             else:
-                list_len = len(vertex_list)
+                list_len = len(vertex_set)
                 if list_len:
                     print("Found %d results for '%s':" % (list_len, search_str))
-                    for vtx in vertex_list:
+                    for vtx in vertex_set:
                         vtx_value = graph.vp.vertex_name[vtx]
                         print("vertex[%s]" % int(vtx), vtx_value)
                 else:
