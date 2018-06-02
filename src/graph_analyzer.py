@@ -431,6 +431,48 @@ def nodes_connected(graph: Graph, nodes: list):
         return False
 
 
+def group(graph: Graph, group_val: str, vtx_group: list) -> GraphView:
+    """
+    Merges the given group of nodes together into one head-node. The nodes in the group-list getting removed
+    afterwards, so only the new head-node and the edges from/to the nodes outside of the group remain in the graph.
+
+    :param graph: the input graph
+    :param group_val: the value/name of the new head-vertex
+    :param vtx_group: the list of vertices which get merged into the head-vertex
+    :return: the modified Graph/GraphView
+    """
+    group_head = graph.add_vertex()  # create new head-vertex for the group
+    graph.vp.vertex_name[group_head] = group_val  # assign a value/name to the new head-vertex
+
+    # collect all outgoing connections from the group
+    out_set = set()
+    for vtx in vtx_group:
+        for out_vtx in graph.get_out_neighbours(vtx):
+            if out_vtx not in vtx_group:
+                out_set.add(out_vtx)
+
+    # collect all incoming connections from the group
+    in_set = set()
+    for vtx in vtx_group:
+        for in_vtx in graph.get_in_neighbours(vtx):
+            if in_vtx not in vtx_group:
+                in_set.add(in_vtx)
+
+    # let the group-head take over outgoing connections
+    for o in out_set:
+        graph.add_edge(group_head, o)
+
+    # let the group-head take over the incoming connections
+    for i in in_set:
+        graph.add_edge(i, group_head)
+
+    # delete the grouped vertices
+    for vtx in reversed(sorted(vtx_group)):
+        graph.remove_vertex(vtx)
+
+    return graph
+
+
 def main(argv):
     """
     Main function which parses the passed arguments.
@@ -467,6 +509,8 @@ def main(argv):
                         help="Enable raw output format for further automated processing or piping. This option is "
                              "supported by '--search', '--children', '--top', '--subgraphs',"
                              "'--independent-subgraphs', '--shared'.")
+    parser.add_argument('--group', nargs='+', metavar=('GROUP_NODE_NAME', 'NODE_IDs'),
+                        help="Merges the given list of node IDs together into one group-node.")
 
     args = parser.parse_args()
 
@@ -553,6 +597,18 @@ def main(argv):
             print("yes")
         else:
             print("no")
+
+    if args.group:
+        if len(args.group) <= 1:
+            print("Too few arguments for '--group'. Expected (str, int, ...).")
+            print("Try 'graph_analyzer -h' for more information.")
+            sys.exit(1)
+
+        vtx_list = []
+        for vtx in args.group[1:]:
+            vtx_list.append(int(vtx))
+
+        export_graph(group(graph, args.group[0], vtx_list))
 
 
 if __name__ == "__main__":
