@@ -22,7 +22,7 @@ The [graph-tool documentation](https://graph-tool.skewed.de/static/doc/index.htm
 The main script is placed in the `/src`-directory of this project.
 The help could be shown with `./graph_analyzer.py -h` or `./graph_analyzer.py --help`.
 
-The following use-cases refers to the `test01.dot`-file which could be found in the `/tests`-folder.
+The following use-cases refer to the `test01.dot`-file which could be found in the `/tests`-folder.
 This file represents a graph with the following hierarchy:
 
 ```
@@ -90,7 +90,6 @@ The resulting output is:
 ```
 vtx[1] in: 1 out: 0 val: Banana
 vtx[6] in: 1 out: 0 val: Mango
-
 ```
 The `--raw` output works also in combination with `--children`, `--top`, `--subgraphs`, `--shared`.
 
