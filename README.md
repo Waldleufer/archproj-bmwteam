@@ -91,13 +91,13 @@ an Ap
 ``` 
 Now we can simply invoke
 ```bash
-./graph_analyzer.py ../tests/test01.dot -r -s `cat search_terms.txt`
+./graph_analyzer.py ../tests/test01.dot -s `cat search_terms.txt`
 ```
 and we get the exact same result as shown before. By this way, it is easy to create and handle
 huge lists of search terms or node-vertices without typing them manually in the terminal window.
 
 Note that the second part is enclosed in back-ticks <code>\`</code> so that the `bash` interprets
-the resulting sequence (in this case `1 6 0`) as arguments for the first command part.
+the resulting sequence (in this case `an Ap`) as arguments for the first command part.
 
 We also can use the search-option in combination with the `--raw` or `-r`-option to provide a 
 machine readable output of the search results. This means only the indices are printed to std-out
