@@ -13,6 +13,13 @@ the installation repository to the system. The key import could be done with the
 sudo apt-key adv --keyserver pgp.skewed.de --recv-key 612DEFB798507F25
 ```
 
+It may also be possible that the some warnings about `matplotlib` occur. This could be resolved by
+installing one additional package on the system. On Ubuntu-like distributions this could be achieved
+with:
+```bash
+sudo apt install python3-matplotlib
+```
+
 ## Documentation
 
 The [graph-tool documentation](https://graph-tool.skewed.de/static/doc/index.html)
