@@ -60,8 +60,7 @@ def main(argv):
         print("Try 'grep_adapter -h' for more information.")
         sys.exit(1)
     else:
-        exec_strings = create_grep_argument(args.searchstring)
-        s: str
+        exec_strings = create_grep_arguments(args.searchstring)
         for s in exec_strings:
             os.system("cat " + args.file + " " + s)
 
