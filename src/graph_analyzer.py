@@ -511,6 +511,9 @@ def main(argv):
                              "'--independent-subgraphs', '--shared'.")
     parser.add_argument('--group', nargs='+', metavar=('GROUP_NODE_NAME', 'NODE_IDs'),
                         help="Merges the given list of node IDs together into one group-node.")
+    parser.add_argument('--export', type=str, nargs=1, metavar='FILE-NAME',
+                        help="Option to set a specific file name for a exported *.gt-file. This option works in "
+                        "combination with '--exclude-nodes', '--exclude-subgraphs', '--group'.")
 
     args = parser.parse_args()
 
@@ -584,13 +587,19 @@ def main(argv):
         for sub_vtx in args.remove_subgraphs:
             sub = exclude_subgraph(sub, sub_vtx)
 
-        print("excluded %d sub-graphs" % len(args.remove_subgraphs))
-        export_graph(sub)
+        print("Excluded %d sub-graphs" % len(args.remove_subgraphs))
+        if args.export:
+            export_graph(sub, args.export[0])
+        else:
+            export_graph(sub)
 
     if args.exclude_nodes:
         out_graph = exclude_nodes(graph, args.exclude_nodes)
-        print("excluded %d nodes" % len(args.exclude_nodes))
-        export_graph(out_graph)
+        print("Excluded %d nodes" % len(args.exclude_nodes))
+        if args.export:
+            export_graph(out_graph, args.export[0])
+        else:
+            export_graph(out_graph)
 
     if args.nodes_connected:
         if nodes_connected(graph, args.nodes_connected):
@@ -608,7 +617,13 @@ def main(argv):
         for vtx in args.group[1:]:
             vtx_list.append(int(vtx))
 
-        export_graph(group(graph, args.group[0], vtx_list))
+        if args.export:
+            export_graph(group(graph, args.group[0], vtx_list), args.export[0])
+        else:
+            export_graph(group(graph, args.group[0], vtx_list))
+
+    if args.export:
+        print("Exported graph to '%s.gt'" % args.export[0])
 
 
 if __name__ == "__main__":
