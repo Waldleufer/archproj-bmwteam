@@ -121,7 +121,7 @@ def find_hotspots(graph: Graph, top_length=0) -> list:
     :return: a list of nodes with the top most connections
     """
     if top_length <= 0:
-        top_length = int(math.log2(len(graph.get_vertices()))) + 1  # use log2 to hold the result list small
+        top_length = int(math.log2(len(graph.vertices()))) + 1  # use log2 to hold the result list small
 
     vtx_list = list(graph.vertices())
     vtx_list.sort(key=lambda vertex: vertex.out_degree(), reverse=True)
@@ -210,7 +210,7 @@ def detect_subgraphs(graph: Graph, is_verbose=True, selection=SelectionMode.ALL)
     """
     indie_nodes = max_independent_vertex_set(graph)
     sub_roots = []
-    for vtx in graph.get_vertices():
+    for vtx in graph.vertices():
         # check if vertex is a subgraph-root and not a leave-node
         if not indie_nodes[vtx] and graph.vertex(vtx).out_degree() > 0:
             sub_roots.append(int(vtx))
@@ -269,7 +269,7 @@ def find_subgraphs(graph: Graph) -> dict:
     :return: a list of the found sub-graphs
     """
     indie_nodes = max_independent_vertex_set(graph)
-    reduced_list = filter(lambda v: False if indie_nodes[v] else True, graph.get_vertices())
+    reduced_list = filter(lambda v: False if indie_nodes[v] else True, graph.vertices())
     subgraph_dict = {}
 
     for vtx in reduced_list:
@@ -346,7 +346,7 @@ def exclude_nodes(graph: Graph, excluding_vertex_list: list) -> GraphView:
     :return: a new `GraphView` without the vertices of the given list
     """
     filter_prop = graph.new_vertex_property("bool")
-    for vtx in graph.get_vertices():
+    for vtx in graph.vertices():
         if vtx not in excluding_vertex_list:
             filter_prop.a[int(vtx)] = True
 
@@ -365,7 +365,7 @@ def exclude_subgraph(graph: Graph, sub_vtx) -> GraphView:
     sub_set = collect_subgraph_vertices(graph, sub_vtx)
     filter_prop = graph.new_vertex_property("bool")
     filter_prop.a[int(sub_vtx)] = True  # keep the root-vertex of the sub-graph
-    for vtx in graph.get_vertices():
+    for vtx in graph.vertices():
         if vtx not in sub_set:
             filter_prop.a[int(vtx)] = True
 
