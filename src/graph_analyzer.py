@@ -439,7 +439,7 @@ def group(graph: Graph, group_val: str, vtx_group: list) -> GraphView:
     :param graph: the input graph
     :param group_val: the value/name of the new head-vertex
     :param vtx_group: the list of vertices which get merged into the head-vertex
-    :return: the modified Graph/GraphView
+    :return: a new `GraphView` with the given vertices grouped together
     """
     group_head = graph.add_vertex()  # create new head-vertex for the group
     graph.vp.vertex_name[group_head] = group_val  # assign a value/name to the new head-vertex
@@ -466,11 +466,13 @@ def group(graph: Graph, group_val: str, vtx_group: list) -> GraphView:
     for i in in_set:
         graph.add_edge(i, group_head)
 
-    # delete the grouped vertices
-    for vtx in reversed(sorted(vtx_group)):
-        graph.remove_vertex(vtx)
+    # filter out grouped vertices
+    filter_prop = graph.new_vertex_property("bool")
+    for vtx in graph.vertices():
+        if vtx not in vtx_group:
+            filter_prop.a[int(vtx)] = True
 
-    return graph
+    return GraphView(graph, vfilt=filter_prop)
 
 
 def main(argv):
