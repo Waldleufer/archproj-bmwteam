@@ -26,6 +26,7 @@ import os
 import itertools
 
 DEFAULT_OUTPUT_DIR = "../out/"
+HELP_INFO_MSG = "Try 'graph_analyzer -h' for more information."
 
 
 def print_graph_vertex(graph: Graph, vertex: int):
@@ -488,7 +489,6 @@ def parse_node_values(graph: Graph, vertex_values: list) -> list:
     :return: a list with the found node indices or a empty list if no vertex index form the input list was given and no
              string match was found
     """
-
     node_indices = []
     for val in vertex_values:
         if val.isdigit():
@@ -509,6 +509,25 @@ def parse_node_values(graph: Graph, vertex_values: list) -> list:
                 print("Could not find Node '%s'. Omit value." % val)
 
     return node_indices
+
+
+def add_parent(graph: Graph, parent_val: str, vtx_group: list) -> GraphView:
+    """
+    Adds a new node to the graph and assigns it to the given vertices as another parent node.
+
+    :param graph: the input graph
+    :param parent_val: the value/name of the new parent node
+    :param vtx_group: the vertices which become assigned to the new parent
+    :return: a new `GraphView` with the new parent node assigned to the given vertices
+    """
+    parent_node = graph.add_vertex()  # create new parent-vertex for the group
+    graph.vp.vertex_name[parent_node] = parent_val  # assign a value/name to the new parent-vertex
+
+    # assign the node as a parent to the group
+    for vtx in vtx_group:
+        graph.add_edge(parent_node, vtx)
+
+    return GraphView(graph)
 
 
 def main(argv):
@@ -547,16 +566,18 @@ def main(argv):
                         help="Enable raw output format for further automated processing or piping. This option is "
                              "supported by '--search', '--children', '--top', '--subgraphs',"
                              "'--independent-subgraphs', '--shared'.")
-    parser.add_argument('--group', nargs='+', metavar=('GROUP_NODE_NAME', 'NODE_IDs'),
+    parser.add_argument('--group', nargs='+', metavar=('GROUP_NODE_NAME', 'NODE_IDs|NODE_NAMEs'),
                         help="Merges the given list of node IDs together into one group-node.")
     parser.add_argument('--export', type=str, nargs=1, metavar='FILE-NAME',
                         help="Option to set a specific file name for a exported *.gt-file. This option works in "
                         "combination with '--exclude-nodes', '--exclude-subgraphs', '--group'.")
+    parser.add_argument('--add-parent',  nargs='+', metavar=('PARENT_NODE_NAME', 'NODE_IDs|NODE_NAMEs'),
+                        help="Adds a new parent node to the given nodes.")
 
     args = parser.parse_args()
 
     if not args.file:
-        print("Try 'graph_analyzer -h' for more information.")
+        print(HELP_INFO_MSG)
         sys.exit(1)
     else:
         graph = load_graph(args.file)
@@ -647,14 +668,14 @@ def main(argv):
 
     if args.group:
         if len(args.group) <= 1:
-            print("Too few arguments for '--group'. Expected (str, int, ...).")
-            print("Try 'graph_analyzer -h' for more information.")
+            print("Too few arguments for '--group'. Expected (str, int|str, ...).")
+            print(HELP_INFO_MSG)
             sys.exit(1)
 
         if args.group[0].isdigit():
             print("Group name as to be a string. "
                   "If you really want a number as group name, put a dot in front of it (e.g. '.5') to escape it.")
-            print("Try 'graph_analyzer -h' for more information.")
+            print(HELP_INFO_MSG)
             sys.exit(1)
         else:
             if args.group[0][0] == '.':  # escape number as string
@@ -671,6 +692,30 @@ def main(argv):
 
     if args.export:
         print("Exported graph to '%s.gt'" % args.export[0])
+
+    if args.add_parent:
+        if len(args.add_parent) <= 1:
+            print("Too few arguments for '--add-parent'. Expected (str, int|str, ...).")
+            print(HELP_INFO_MSG)
+            sys.exit(1)
+
+        if args.add_parent[0].isdigit():
+            print("Parent name as to be a string. "
+                  "If you really want a number as parent name, put a dot in front of it (e.g. '.5') to escape it.")
+            print(HELP_INFO_MSG)
+            sys.exit(1)
+        else:
+            if args.add_parent[0][0] == '.':  # escape number as string
+                parent_name = args.add_parent[0][1:]
+            else:
+                parent_name = args.add_parent[0]
+
+        vtx_list = parse_node_values(graph, args.add_parent[1:])
+
+        if args.export:
+            export_graph(add_parent(graph, parent_name, vtx_list), args.export[0])
+        else:
+            export_graph(add_parent(graph, parent_name, vtx_list))
 
 
 if __name__ == "__main__":
