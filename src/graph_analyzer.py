@@ -475,6 +475,42 @@ def group(graph: Graph, group_val: str, vtx_group: list) -> GraphView:
     return GraphView(graph, vfilt=filter_prop)
 
 
+def parse_node_values(graph: Graph, vertex_values: list) -> list:
+    """
+    Matches the given value list with the nodes in the input graph and returns the found indices as list.
+    This routine is supposed to be a comfort utility function to take nearly every input and translates it into a
+    processable output list, whether the input is a list of strings and/or already synthesized indices. If numbers are
+    given in the input list, they get interpreted as vertex indices and therefore get bypassed directly into the
+    resulting list. If necessary, Numbers could be escaped as string with a leading dot (e.g. `.5`).
+
+    :param graph: the input graph
+    :param vertex_values: list with indices node values to match
+    :return: a list with the found node indices or a empty list if no vertex index form the input list was given and no
+             string match was found
+    """
+
+    node_indices = []
+    for val in vertex_values:
+        if val.isdigit():
+            node_indices.append(val)
+        else:
+            if val[0] == '.':
+                val = val[1:]
+
+            was_found = False
+            for vtx in graph.vertices():
+                vtx_value = graph.vp.vertex_name[vtx]
+                if vtx_value == val:
+                    node_indices.append(vtx)
+                    was_found = True
+                    break;
+
+            if not was_found:
+                print("Could not find Node '%s'. Omit value." % val)
+
+    return node_indices
+
+
 def main(argv):
     """
     Main function which parses the passed arguments.
@@ -615,14 +651,23 @@ def main(argv):
             print("Try 'graph_analyzer -h' for more information.")
             sys.exit(1)
 
-        vtx_list = []
-        for vtx in args.group[1:]:
-            vtx_list.append(int(vtx))
+        if args.group[0].isdigit():
+            print("Group name as to be a string. "
+                  "If you really want a number as group name, put a dot in front of it (e.g. '.5') to escape it.")
+            print("Try 'graph_analyzer -h' for more information.")
+            sys.exit(1)
+        else:
+            if args.group[0][0] == '.':  # escape number as string
+                group_name = args.group[0][1:]
+            else:
+                group_name = args.group[0]
+
+        vtx_list = parse_node_values(graph, args.group[1:])
 
         if args.export:
-            export_graph(group(graph, args.group[0], vtx_list), args.export[0])
+            export_graph(group(graph, group_name, vtx_list), args.export[0])
         else:
-            export_graph(group(graph, args.group[0], vtx_list))
+            export_graph(group(graph, group_name, vtx_list))
 
     if args.export:
         print("Exported graph to '%s.gt'" % args.export[0])
