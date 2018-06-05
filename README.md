@@ -117,3 +117,27 @@ vtx[0] in: 1 out: 2 val: Apple
 The `--raw` output works also in combination with `--children`, `--top`, `--subgraphs` and
 `--shared` option.
 
+It is also possible to create groups where various nodes get merged together into one master-node.
+Therefore the `--group` option requires the name of the new master-node and than a list of all
+nodes who should be merged together. On this behalf, it is not necessary to provide all entries as
+indices (which is also possible). Usually, it is sufficient enough to use the names of the nodes
+as long as they match the exact spelling as provided in the source file. Even both notations could
+be mixed up and used at the same time like stated in the following example. 
+```bash
+./graph_analyzer.py ../tests/test01.dot --group ApplesWithDifferentColors 5 Green 8 Dark
+```
+
+The output would be:
+```
+vtx[3] in: 0 out: 4 val: Fruits
+├─ vtx[0] in: 1 out: 1 val: Apple
+│  └─ vtx[9] in: 1 out: 0 val: ApplesWithDifferentColors
+├─ vtx[1] in: 1 out: 0 val: Banana
+├─ vtx[7] in: 1 out: 0 val: Pear
+└─ vtx[6] in: 1 out: 0 val: Mango
+```
+
+Note that the indices `5` and  `8` got included in the new `ApplesWithDifferentColors`-node as well
+as the nodes with the indices `2` and `8`, which got selected by their name. However, the rest of
+the nodes and their indices remain the same.
+
