@@ -69,10 +69,8 @@ def search_by_domain(file_path: str, domain):
     :param domain: the domain of which content is requested.
     :return: a list of every module inside the given domain.
     """
-    # This list can be used to check whether everything was inputted correctly into our json file.
-    # It contains every domain.
-    # domains = ["apposs","cia","connectivity","distrender","entertainment","hmi",
-    #            "navigation","speech","supersec","sysfunc","sysinfra","telematics"]
+    # This can be used to check whether everything was inputted correctly into our json file.
+    # domains = get_domainlist()
     path = file_path
     if path == "":
         path = JSON_FILE_PATH
@@ -95,13 +93,8 @@ def search_by_context(file_path, context):
     :param context: the contextGroup of which content is requested.
     :return: a list of every module inside the given contextGroup.
     """
-    # This list can be used to check whether everything was inputted correctly into our json file.
-    # It contains every contextGroup.
-    # contexts = ["Connectivity","Multimedia","Navigation","Speech",
-    # "Telematics / OAP","CE integration / A4A","Filesystem","Data","IPC",
-    # "Runtime environment Framework libraries","Network","Lifecycle / diversity",
-    # "SysInfra managers","System functions","Security","Log&Trace / debug",
-    # "Graphic","Audio / Video","Linux infrastructure","Kernel / bootloader","Drivers / firmware"]
+    # This can be used to check whether everything was inputted correctly into our json file.
+    # contexts = get_context_groups()
 
     path = file_path
     if path == "":
@@ -125,20 +118,8 @@ def search_by_abstraction(file_path, abstraction_layer):
     :param abstraction_layer: the abstractionLayer of which content is requested.
     :return: a list of every module inside the given abstractionLayer.
     """
-    # This list can be used to check whether everything was inputted correctly into our json file.
-    # It contains every abstraction_layer.
-    # abstractionLayers = ["Presentation", "Middleware", "Middleware - OnlineApp platform", "Services",
-    # "Presentation - OnlineApps",
-    # "Presentation - HMI",
-    # "Services - Telematics platform - Infrastructure", "Services - Telematics platform - Iterface-vehicle",
-    # "System Infrastructure - off-the-shelf", "System Infrastructure - off-the-shelf - compression",
-    # "System Infrastructure - off-the-shelf - rendering", "System Infrastructure - off-the-shelf - imaging",
-    # "System Infrastructure - off-the-shelf - string", "System Infrastructure - off-the-shelf - json",
-    # "System Infrastructure - off-the-shelf - xml", "System Infrastructure - off-the-shelf - Audio / AVB stack",
-    # "System Infrastructure - product specific", "System Infrastructure - product specific - RSU",
-    # "System Infrastructure - product specific - Personalization",
-    # "System Infrastructure - product specific - Diversity",
-    # "BSP", "BSP - HAL / audo", "BSP - HAL / graphic"]
+    # This can be used to check whether everything was inputted correctly into our json file.
+    # abstraction_layers = get_abstraction_layers()
     path = file_path
     if path == "":
         path = JSON_FILE_PATH
@@ -148,10 +129,44 @@ def search_by_abstraction(file_path, abstraction_layer):
     modules = _breakdown_dict(dic)
     abstraction_layer_list = []
     for k, v in modules.items():
-        # if(v["abstractionLayer"] not in abstractionLayers and v["abstractionLayer"] is not None):
+        # if(v["abstractionLayer"] not in abstraction_layers and v["abstractionLayer"] is not None):
         if v["abstractionLayer"] == abstraction_layer:
             abstraction_layer_list.append(k)
     return abstraction_layer_list
+
+
+def get_domainlist():
+    domains = ["apposs","cia","connectivity","distrender","entertainment","hmi", "navigation","speech","supersec","sysfunc","sysinfra","telematics"]
+    return domains
+
+
+def get_context_groups():
+    contexts = ["Connectivity","Multimedia","Navigation","Speech",
+        "Telematics / OAP","CE integration / A4A","Filesystem","Data","IPC",
+        "Runtime environment Framework libraries","Network","Lifecycle / diversity",
+        "SysInfra managers","System functions","Security","Log&Trace / debug",
+        "Graphic","Audio / Video","Linux infrastructure","Kernel / bootloader","Drivers / firmware"]
+    return contexts
+
+
+def get_abstraction_layers():
+    abstraction_layers = ["Presentation", "Middleware", "Middleware - OnlineApp platform", "Services",
+        "Presentation - OnlineApps",
+        "Presentation - HMI",
+        "Services - Telematics platform - Infrastructure", "Services - Telematics platform - Iterface-vehicle",
+        "System Infrastructure - off-the-shelf", "System Infrastructure - off-the-shelf - compression",
+        "System Infrastructure - off-the-shelf - rendering", "System Infrastructure - off-the-shelf - imaging",
+        "System Infrastructure - off-the-shelf - string", "System Infrastructure - off-the-shelf - json",
+        "System Infrastructure - off-the-shelf - xml", "System Infrastructure - off-the-shelf - Audio / AVB stack",
+        "System Infrastructure - product specific", "System Infrastructure - product specific - RSU",
+        "System Infrastructure - product specific - Personalization",
+        "System Infrastructure - product specific - Diversity",
+        "BSP", "BSP - HAL / audo", "BSP - HAL / graphic"]
+    return abstraction_layers
+
+
+
+
 
 
 '''
