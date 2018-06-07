@@ -44,7 +44,6 @@ def create_parents(graph_filename: str, json_filename: str, out_filename: str):
 
     # combine all childnodes to a parentnode
     for name,childnodes in parent_dictionary.items():
-        # graph_new = load_graph(out_string_gt)
         graph = graph_analyzer.add_parent(graph, name, childnodes)
     graph_analyzer.export_graph(graph, out_string)
 
@@ -98,8 +97,7 @@ def find_childnodes(graph: Graph, json_filename: str):
                     node_collection.append(n)
         parent_dictionary[name] = node_collection
 
-    """
-    # double check: if any node_collection collides with another, both are removed an thus let alone
+    # check if any node_collection collides with another
     troublemaker_keys = []
     for key,node_collection in parent_dictionary.items():
         for k,nc in parent_dictionary.items():
@@ -115,10 +113,6 @@ def find_childnodes(graph: Graph, json_filename: str):
     if len(troublemaker_keys) != 0:
         print("The following keys are part of collisions:")
         pprint(troublemaker_keys)
-        exit()
-    """
-
-    # pprint(parent_dictionary)
 
     return parent_dictionary
 
