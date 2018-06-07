@@ -35,24 +35,18 @@ def create_parents(graph_filename: str, json_filename: str, out_filename: str):
     :param json_filename: the path to a json file (in our bmw-json format) containing all the names for the parent creation
     """
 
-    out_string = "../out/" + out_filename + ".gt"
+    out_string = "../out/" + out_filename
+
 
 
     graph = load_graph(graph_filename)
     parent_dictionary = find_childnodes(graph, json_filename)
-    """"
-    # create a first output graph as .gt - since IDs can afterwards be different, we need to load the output again. afterwards IDs should be stable
-    graph_analyzer.export_graph(graph_analyzer.group(graph, parent_dictionary.items()[0][0], parent_dictionary.items()[0][1]), out_filename)
 
-    graph_new = load_graph(out_string)
-    parent_dictionary_new = find_childnodes(graph_new, json_filename)
     # combine all childnodes to a parentnode
-    debug_count = 0
-    for name,childnodes in parent_dictionary_new.items():
-        print("currently at " + str(debug_count) + " from " + str(len(parent_dictionary)))
-        graph_new = load_graph(out_string)
-        graph_analyzer.export_graph(graph_analyzer.group(graph_new, name, childnodes), out_string)
-    """
+    for name,childnodes in parent_dictionary.items():
+        # graph_new = load_graph(out_string_gt)
+        graph = graph_analyzer.add_parent(graph, name, childnodes)
+    graph_analyzer.export_graph(graph, out_string)
 
 
 
@@ -104,6 +98,7 @@ def find_childnodes(graph: Graph, json_filename: str):
                     node_collection.append(n)
         parent_dictionary[name] = node_collection
 
+    """
     # double check: if any node_collection collides with another, both are removed an thus let alone
     troublemaker_keys = []
     for key,node_collection in parent_dictionary.items():
@@ -121,9 +116,9 @@ def find_childnodes(graph: Graph, json_filename: str):
         print("The following keys are part of collisions:")
         pprint(troublemaker_keys)
         exit()
+    """
 
-
-    pprint(parent_dictionary)
+    # pprint(parent_dictionary)
 
     return parent_dictionary
 
