@@ -39,9 +39,6 @@ def validate_children_subgraphs(graph: Graph, parent_dictionary: dict):
     debug_counter = 1
     for key, node_collection in parent_dictionary.items():
 
-        if(debug_counter > 5):
-            break
-
         print("----------------------------------node_collection %i of %i: %s" % (debug_counter, len(parent_dictionary), key))
         debug_counter = debug_counter + 1
 
@@ -88,15 +85,10 @@ def find_childnodes(graph: Graph, json_filename: str):
     :return: a dictionary with names from the json file as keys and all found nodes in a list as value
     """
     parent_dictionary = {}
-    debugcounter = 0
     all_names = jsonparser.all_components(json_filename)
     for name in all_names:
         if ("kein Match" in name) or ("no Match" in name):
             continue
-
-        if(debugcounter > 5):
-            break
-        debugcounter = debugcounter + 1
 
         search_names = name.split(";")
         node_collection = []
@@ -118,10 +110,6 @@ def find_childnodes(graph: Graph, json_filename: str):
                 node_list = []
                 for v in nl:
                     node_list.append(str(v))
-                #node_list = list(set(node_list))
-
-                #if name == "lib&coding":
-                #    print("nodelist: %i" % len(node_list))
 
                 # remove nodes from word_result_list that are not in node_list
                 remove_list = []
@@ -131,9 +119,6 @@ def find_childnodes(graph: Graph, json_filename: str):
                         remove_list.append(node)
                 for node in remove_list:
                     word_result_list.remove(node)
-
-            #if name == "lib&coding":
-            #    print(len(word_result_list))
 
             # append result to node_collection
             for n in word_result_list:
@@ -176,8 +161,6 @@ def main(argv):
         graph = load_graph(args.file1)
         print("find_childnodes has begun")
         parent_dict = find_childnodes(graph, args.file2)
-        print("parentdict:")
-        pprint(parent_dict)
         print("validation has begun")
         trouble_list = validate_children_subgraphs(graph, parent_dict)
         if (len(trouble_list) != 0):
@@ -185,8 +168,7 @@ def main(argv):
             pprint(trouble_list)
             file = open(STANDARD_OUT_DICT + "parent_handler_validation.txt", "w")
             for item in trouble_list:
-                #print("%s, %s" % (item[0][0], item[0][1]))
-                file.write(item[0] + ", " + item[1] + "\n")
+                file.write(item[0] + "," + item[1] + "\n")
         else:
             print("Everything is fine. All nodes with the same parent are somewhere connected within their subgraphs")
         return
