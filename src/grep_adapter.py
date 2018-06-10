@@ -33,13 +33,16 @@ def create_grep_arguments(search_str: str):
     :param search_str: the string in the upperhand specified format
     :return the list with all ready-to-be-parsed strings
     """
-    pre = ""
     out = list()
     words = search_str.split(";")
     for wdiff in words:
-        split = wdiff.split("&")
-        for wunion in split:
-            pre += '| grep -i "' + wunion + '" '
+        pre = ""
+        if "&" in wdiff:
+            split = wdiff.split("&")
+            for wunion in split:
+                pre += '| grep -i "' + wunion + '" '
+        else:
+            pre = '| grep -i "' + wdiff + '" '
         out.append(pre)
 
     return out
