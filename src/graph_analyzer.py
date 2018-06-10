@@ -39,7 +39,7 @@ def print_graph_vertex(graph: Graph, vertex: int):
     :param graph: the graph to print
     :param vertex: optional list of vertices to print out
     """
-    print("vtx[%d]" % vertex,
+    print("vtx[%s]" % vertex,
           "in:", graph.vertex(vertex).in_degree(),
           "out:", graph.vertex(vertex).out_degree(),
           "val:", graph.vp.vertex_name[vertex])
@@ -61,7 +61,7 @@ def print_vertex_children(graph: Graph, vertex: int, degree=1):
 
     def print_recursive(vtx: int, deg=1, indent="", branch=""):
         out_degree = graph.vertex(vtx).out_degree()
-        print("%s%svtx[%d]" % (indent, branch, vtx),
+        print("%s%svtx[%s]" % (indent, branch, vtx),
               "in:", graph.vertex(vtx).in_degree(),
               "out:", out_degree,
               "val:", graph.vp.vertex_name[vtx])
@@ -76,18 +76,18 @@ def print_vertex_children(graph: Graph, vertex: int, degree=1):
                 if child == vtx:
                     if not branch:
                         branch += BRANCH_FORK
-                    print("%s%svtx[%d]" % (indent, branch[:-2] + BRANCH_SELF, child),
+                    print("%s%svtx[%s]" % (indent, branch[:-2] + BRANCH_SELF, child),
                           "in:", graph.vertex(child).in_degree(),
                           "out:", out_degree,
                           "val:", graph.vp.vertex_name[child])
                 else:
                     print_recursive(child, deg - 1, indent, BRANCH_FORK)
 
-            child = graph.get_out_neighbours(vtx)[-1:]
+            child = int(graph.get_out_neighbours(vtx)[-1:])
             if child == vtx:
                 if not branch:
                     branch += BRANCH_END
-                print("%s%svtx[%d]" % (indent, BRANCH_END[:-2] + BRANCH_SELF, child),
+                print("%s%svtx[%s]" % (indent, BRANCH_END[:-2] + BRANCH_SELF, child),
                       "in:", graph.vertex(child).in_degree(),
                       "out:", out_degree,
                       "val:", graph.vp.vertex_name[child])
@@ -503,7 +503,7 @@ def parse_node_values(graph: Graph, vertex_values: list) -> list:
                 if vtx_value == val:
                     node_indices.append(vtx)
                     was_found = True
-                    break;
+                    break
 
             if not was_found:
                 print("Could not find Node '%s'. Omit value." % val)
@@ -538,9 +538,9 @@ def main(argv):
     """
     parser = argparse.ArgumentParser(description="A program to analyse and explore large *.dot files.")
     parser.add_argument('file', type=str, metavar='FILE')
-    parser.add_argument('-c', '--children', type=int, nargs=1, metavar='NODE_ID',
+    parser.add_argument('-c', '--children', nargs=1, metavar='NODE_ID|NODE_NAME',
                         help="Print the Node and its (sub-)children.")
-    parser.add_argument('-p', '--print', type=int, nargs='+', metavar='NODE_ID',
+    parser.add_argument('-p', '--print', nargs='+', metavar='NODE_IDs|NODE_NAMEs',
                         help="Print some details about the given node(s).")
     parser.add_argument('-s', '--search', type=str, nargs='+', metavar='SEARCH_STR', help="Search for the given node.")
     parser.add_argument('-t', '--top', action='store_true',
@@ -554,12 +554,12 @@ def main(argv):
     parser.add_argument('-sis', '--independent-subgraphs', action='store_true',
                         help="Searches and lists all independent sub-graphs (sub-graphs without any other sub-graphs "
                              "in it).")
-    parser.add_argument('--shared', type=int, nargs=2, metavar='NODE_ID',
+    parser.add_argument('--shared', nargs=2, metavar='NODE_ID|NODE_NAME',
                         help="Lists all common shared vertices of two sub-graphs.")
-    parser.add_argument('-en', '--exclude-nodes', type=int, nargs='+', metavar='NODE_ID',
+    parser.add_argument('-en', '--exclude-nodes', nargs='+', metavar='NODE_IDs|NODE_NAMEs',
                         help="Excludes the given nodes (and their children) and exports the remaining graph as"
                              "*.gt-file.")
-    parser.add_argument('-es', '--exclude-subgraphs', type=int, nargs='+', metavar='SUB_ROOT_NODE_ID',
+    parser.add_argument('-es', '--exclude-subgraphs', nargs='+', metavar='SUB_ROOT_NODE_IDs|SUB_ROOT_NODE_NAMEs',
                         help="Excludes the given sub-graphs (without root node) and exports the remaining graph as "
                              "*.gt-file.")
     parser.add_argument('-r', '--raw', action='store_true',
@@ -583,14 +583,19 @@ def main(argv):
         graph = load_graph(args.file)
 
     if args.children:
+        node = parse_node_values(graph, args.children)
+        if len(node) != 1:
+            print("Error: Could not find required  node.")
+            sys.exit(1)
         if args.raw:
-            for vtx in collect_subgraph_vertices(graph, args.children[0]):
+            for vtx in collect_subgraph_vertices(graph, node[0]):
                 print("%s " % vtx, end="")
         else:
-            print_vertex_children(graph, args.children[0], 3)
+            print_vertex_children(graph, node[0], 3)
 
     if args.print:
-        for vtx in args.print:
+        nodes = parse_node_values(graph, args.print)
+        for vtx in nodes:
             print_graph_vertex(graph, vtx)
 
     if args.search:
@@ -630,7 +635,12 @@ def main(argv):
         detect_subgraphs(graph, not args.raw, SelectionMode.ALL)
 
     if args.shared:
-        shared_vtx_list = list_shared_sub_vertices(graph, args.shared[0], args.shared[1])
+        nodes = parse_node_values(graph, args.shared)
+        if len(nodes) != 2:
+            print("Error: Could not find required node for comparison.")
+            sys.exit(1)
+
+        shared_vtx_list = list_shared_sub_vertices(graph, nodes[0], nodes[1])
         if args.raw:
             for vtx in shared_vtx_list:
                 print("%s " % vtx, end="")
@@ -642,19 +652,21 @@ def main(argv):
         detect_subgraphs(graph, not args.raw, SelectionMode.INDEPENDENT)
 
     if args.exclude_subgraphs:
+        nodes = parse_node_values(graph, args.exclude_subgraphs)
         sub = graph
-        for sub_vtx in args.remove_subgraphs:
+        for sub_vtx in nodes:
             sub = exclude_subgraph(sub, sub_vtx)
 
-        print("Excluded %d sub-graphs" % len(args.remove_subgraphs))
+        print("Excluded %d sub-graphs" % len(nodes))
         if args.export:
             export_graph(sub, args.export[0])
         else:
             export_graph(sub)
 
     if args.exclude_nodes:
-        out_graph = exclude_nodes(graph, args.exclude_nodes)
-        print("Excluded %d nodes" % len(args.exclude_nodes))
+        nodes = parse_node_values(graph, args.exclude_nodes)
+        out_graph = exclude_nodes(graph, nodes)
+        print("Excluded %d nodes" % len(nodes))
         if args.export:
             export_graph(out_graph, args.export[0])
         else:
