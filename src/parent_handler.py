@@ -26,32 +26,141 @@ import graph_analyzer
 STANDARD_OUT_DICT="../out/"
 
 
+def shared_sub_graphs_direct(graph: Graph, main_nodes: dict, node_compare_list: list, head_list: list):
+    """
+    :param graph: the graph whose nodes should be checked.
+    :param main_nodes: a dictionary containing True at every node_id of an original graph.
+    :param node_compare_list: list of lists each containing the node_ids of a individual subgraph
+    :return: a list of node_ids whose subgraphs are directly overlapping with any of the main_nodes
+    """
+    result_list = []
+    #for compare_nodes_parent in node_compare_list:
+    for i in range(0,len(node_compare_list)):
+        compare_nodes = node_compare_list[i]
+
+        is_overlapping = False
+        for n in compare_nodes:
+            if (main_nodes.get(str(n)) == True):
+                is_overlapping = True
+                break
+
+        if(is_overlapping == True):
+            result_list.append(head_list[i])
+
+    return result_list
+
+
+def shared_sub_graphs_indirect(graph: Graph, node_compare_list: list):
+    """
+    The function takes a graph and a node_id thereof, checking whether the node is somehow connected via subgraphs to
+    the nodes in the node_node_compare_list. This includes two nodes sharing a part of their subgraph as well as
+    being indirectly connected via other nodes from the node_compare_list.
+
+    :param graph: the graph whose nodes should be checked.
+    :param main_node_id: the node which should be compared to other nodes from the node_compare_list
+    :param node_compare_list: the nodes to be compared with the given node_id
+    :return: a list of node_ids containing every node NOT connected to the input node_id
+    """
+    # load all subgraphs once
+    loaded_nodes = []
+    #for i in node_compare_list:
+    for i in range(0, len(node_compare_list)):
+        vertices = graph_analyzer.collect_subgraph_vertices(graph, int(node_compare_list[i]))
+        loaded_nodes.append(vertices)
+
+    overlapping_information = []
+
+    for i in range(0,len(node_compare_list)-1): # current main node for subgraph-check
+        current_node_compare_list = loaded_nodes[(i+1):]
+        head_list = node_compare_list[(i+1):]
+        main_nodes_vtx = loaded_nodes[i]
+        main_nodes = {}
+        for vtx in main_nodes_vtx:
+            main_nodes[str(vtx)] = True
+
+        overlapping_subgraphs = shared_sub_graphs_direct(graph, main_nodes, current_node_compare_list, head_list)
+        overlapping_information.append(overlapping_subgraphs)
+        overlapping_information[i].append(node_compare_list[i])
+
+    #by now we got all direct connections of subgraphs. test03.dot would output [['2', '1'], ['3', '2'], ['4', '3']]
+    result_list = find_adjacent(overlapping_information, node_compare_list)
+    #here we've got all indirect connections. test03.dot would output [['1', '2', '3', '4']]
+    return result_list
+
+
+def find_adjacent(overlapping_information: list, existing_nodes: list):
+    """
+    Gets a list of directly connected subgraphs and adds the indirect connections.
+
+    :param overlapping_information: a list of lists each containing direct connections betweeen some subgraphs.
+    :param existing_nodes: a list containing each existing node once.
+    :return: a list of lists each containing all reachable subgraphs with other connected subgraphs in between.
+    """
+    result_connections = []
+    for node in existing_nodes:
+
+        already_checked = False
+        for c in result_connections:
+            if(node in c):
+                already_checked = True
+                break
+        if(already_checked == True):
+            continue
+
+        connection_list = []
+        connection_list.append(node)
+        has_changed = True
+        while (has_changed == True):
+            has_changed = False
+
+            for direct_connection in overlapping_information:
+
+                will_be_checked = False
+                for n in connection_list:
+                    if n in direct_connection:
+                        will_be_checked = True
+                        break
+
+                if(will_be_checked == True):
+                    for new_node in direct_connection:
+                        if new_node not in connection_list:
+                            connection_list.append(new_node)
+                            has_changed = True
+
+        result_connections.append(connection_list)
+    return result_connections
+
+
+
 def validate_children_subgraphs(graph: Graph, parent_dictionary: dict):
     """
     The function takes a graph and the corresponding dictionary containing parent names as keys and children ID lists as values
     (as created in find_childnodes) and checks for every parent whether every childrens subgraphs overlap or not.
 
-    :param graph_in: the graph or its filename for which the nodes in the dictionary should be validated
+    :param graph: the graph for which the nodes in the dictionary should be validated
     :param parent_dictionary: a dictionary as created in find_childnodes
-    :return: a list filled with tuples of children whose subgraphs do not overlap or an empty list if every subgraph overlaps any other
+    :return: a list filled with one list for each parent whose children are not part of exactly one graph
+            (judging by the connection of their subgraphs). Each list contains lists of all nodes connected among each other.
+            Also at the end of every list regarding one parent, there is a string containing the name of the parent
     """
     results = []
-    debug_counter = 1
+    counter = 1
     for key, node_collection in parent_dictionary.items():
 
-        print("----------------------------------node_collection %i of %i: %s" % (debug_counter, len(parent_dictionary), key))
-        debug_counter = debug_counter + 1
+        print("----------------------------------node_collection %i of %i (with size %i): %s" % (counter, len(parent_dictionary), len(node_collection), key))
+        counter = counter + 1
 
-        for i in range(0, len(node_collection)):
+        connected_graphs = shared_sub_graphs_indirect(graph, node_collection)
+        print("For this key there is/are %i different subgraph/s" % len(connected_graphs))
+        if(len(connected_graphs) != 1):
+            for g in connected_graphs:
+                print(g)
 
-            print("i = %i, max = %i" % (i, len(node_collection)))
+        if(len(connected_graphs) != 1):
+            connected_graphs.append(key)
+            results.append(connected_graphs)
 
-            for j in range(i+1, len(node_collection)):
-                shared_subgraphs = graph_analyzer.list_shared_sub_vertices(graph, int(node_collection[i]), int(node_collection[j]))
-                if(len(shared_subgraphs) == 0):
-                    l = [node_collection[i], node_collection[j]]
-                    results.append(l)
-
+    #result looks like [[[node1, node2], [node3, node4], "graph1"], [[node5], [node6, node7, node8], "graph2"]]
     return results
 
 
@@ -140,13 +249,14 @@ def main(argv):
     """
     parser = argparse.ArgumentParser(description="A script to search a graph for all nodes mentioned in a json file (in our bmw-json format). "
                                                  "Those nodes are then each combined into a parent node and the resulting graph is then outputted in another file. "
-                                                 "This has to be called from withing our src folder as it uses the jsonparser and graph_analyzer")
+                                                 "This has to be called from withing our src folder as it uses the jsonparser and graph_analyzer."
+                                                 "For testing you can also call this with test03.dot and test03.json.")
     parser.add_argument('file1', type=str, metavar='GRAPH_FILE', help=".dot or .gt file containing a graph.")
     parser.add_argument('file2', type=str, metavar='JSON_FILE', help=".json file containing node names.")
     parser.add_argument('-c', '--createParents', action='store_true',
                         help="Create parents according to the json file.")
     parser.add_argument('-v', '--validate', action='store_true',
-                        help="Validate connection of the children in the json file. This takes a LONG time.")
+                        help="Validate connection of the children in the json file.")
     args = parser.parse_args()
 
     if not args.file1 or not args.file2:
@@ -164,11 +274,27 @@ def main(argv):
         print("validation has begun")
         trouble_list = validate_children_subgraphs(graph, parent_dict)
         if (len(trouble_list) != 0):
+            # print on command line
             print("the following nodes and their subgraphs aren't connected even though they share the same parent:")
-            pprint(trouble_list)
+            for graph in trouble_list:
+                print(graph[len(graph)-1] + ":")
+                for i in range(0, len(graph)-1):
+                    print(graph[i])
+                print("")
+
+            # write to file
             file = open(STANDARD_OUT_DICT + "parent_handler_validation.txt", "w")
-            for item in trouble_list:
-                file.write(item[0] + "," + item[1] + "\n")
+            for graph in trouble_list:
+                file.write(graph[len(graph)-1] + ":\n")
+                lists = graph[0:len(graph) - 1]
+                for lis in lists:
+                    for i in range(0, len(graph)-1):
+                        file.write(lis[i])
+                        file.write(",")
+                    file.write(lis[len(lis) - 1])
+                    file.write("\n")
+                file.write("\n")
+
         else:
             print("Everything is fine. All nodes with the same parent are somewhere connected within their subgraphs")
         return
