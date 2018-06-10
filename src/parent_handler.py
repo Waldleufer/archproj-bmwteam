@@ -180,22 +180,50 @@ def create_parents(graph_filename: str, json_filename: str):
     for name,childnodes in parent_dictionary.items():
         graph = graph_analyzer.add_parent(graph, name, childnodes)
 
+
     # add domains, contextGroups and abstractionLayers as parents of the components
-    # TODO: complete as soon as strict search is implemented in graph_analyzer
     domain_list = jsonparser.get_domainlist()
     for domain in domain_list:
         comp_list = jsonparser.search_by_domain(json_filename, domain)
-        #graph = graph_analyzer.add_parent(graph, domain, comp_list)
+        comp_list_new = []
+        for c in comp_list:
+            if ("no Match" in c) or ("kein Match" in c):
+                continue
+            comp_list_new.append(c)
+        lis = graph_analyzer.parse_node_values(graph,comp_list_new)
+        graph = graph_analyzer.add_parent(graph, domain, lis)
 
     context_group_list = jsonparser.get_context_groups()
     for context in context_group_list:
-        comp_list = jsonparser.search_by_domain(json_filename, context)
-        #graph = graph_analyzer.add_parent(graph, context, comp_list)
+        comp_list = jsonparser.search_by_context(json_filename, context)
+        comp_list_new = []
+        for c in comp_list:
+            if ("no Match" in c) or ("kein Match" in c):
+                continue
+            comp_list_new.append(c)
+        lis = graph_analyzer.parse_node_values(graph,comp_list_new)
+        graph = graph_analyzer.add_parent(graph, context, lis)
 
     abstraction_layer_list = jsonparser.get_abstraction_layers()
     for layer in abstraction_layer_list:
-        comp_list = jsonparser.search_by_domain(json_filename, layer)
-        #graph = graph_analyzer.add_parent(graph, layer, comp_list)
+        comp_list = jsonparser.search_by_abstraction(json_filename, layer)
+        comp_list_new = []
+        for c in comp_list:
+            if ("no Match" in c) or ("kein Match" in c):
+                continue
+            comp_list_new.append(c)
+        lis = graph_analyzer.parse_node_values(graph,comp_list_new)
+        graph = graph_analyzer.add_parent(graph, layer, lis)
+
+    # add one node for domains, context groups and abstraction layers each
+    domain_list_ids = graph_analyzer.parse_node_values(graph,domain_list)
+    graph = graph_analyzer.add_parent(graph, "DOMAINS", domain_list_ids)
+
+    context_group_ids = graph_analyzer.parse_node_values(graph,context_group_list)
+    graph = graph_analyzer.add_parent(graph, "CONTEXT_GROUPS", context_group_ids)
+
+    abstraction_layer_ids = graph_analyzer.parse_node_values(graph,abstraction_layer_list)
+    graph = graph_analyzer.add_parent(graph, "ABSTRACTION_LAYERS", abstraction_layer_ids)
 
 
     graph_analyzer.export_graph(graph, STANDARD_OUT_DICT + "parent_handler_output")
