@@ -176,9 +176,28 @@ def create_parents(graph_filename: str, json_filename: str):
     graph = load_graph(graph_filename)
     parent_dictionary = find_childnodes(graph, json_filename)
 
-    # combine all childnodes to a parentnode
+    # combine all childnodes of components to a parentnode
     for name,childnodes in parent_dictionary.items():
         graph = graph_analyzer.add_parent(graph, name, childnodes)
+
+    # add domains, contextGroups and abstractionLayers as parents of the components
+    # TODO: complete as soon as strict search is implemented in graph_analyzer
+    domain_list = jsonparser.get_domainlist()
+    for domain in domain_list:
+        comp_list = jsonparser.search_by_domain(json_filename, domain)
+        #graph = graph_analyzer.add_parent(graph, domain, comp_list)
+
+    context_group_list = jsonparser.get_context_groups()
+    for context in context_group_list:
+        comp_list = jsonparser.search_by_domain(json_filename, context)
+        #graph = graph_analyzer.add_parent(graph, context, comp_list)
+
+    abstraction_layer_list = jsonparser.get_abstraction_layers()
+    for layer in abstraction_layer_list:
+        comp_list = jsonparser.search_by_domain(json_filename, layer)
+        #graph = graph_analyzer.add_parent(graph, layer, comp_list)
+
+
     graph_analyzer.export_graph(graph, STANDARD_OUT_DICT + "parent_handler_output")
 
 
@@ -249,7 +268,8 @@ def main(argv):
     """
     parser = argparse.ArgumentParser(description="A script to search a graph for all nodes mentioned in a json file (in our bmw-json format). "
                                                  "Those nodes are then each combined into a parent node and the resulting graph is then outputted in another file. "
-                                                 "This has to be called from withing our src folder as it uses the jsonparser and graph_analyzer."
+                                                 "This has to be called from withing our src folder as it uses the jsonparser and graph_analyzer. "
+                                                 "Another service is the validation of parent nodes. This checks whether all children are somehow connected to eac other. "
                                                  "For testing you can also call this with test03.dot and test03.json.")
     parser.add_argument('file1', type=str, metavar='GRAPH_FILE', help=".dot or .gt file containing a graph.")
     parser.add_argument('file2', type=str, metavar='JSON_FILE', help=".json file containing node names.")
@@ -285,13 +305,13 @@ def main(argv):
             # write to file
             file = open(STANDARD_OUT_DICT + "parent_handler_validation.txt", "w")
             for graph in trouble_list:
-                file.write(graph[len(graph)-1] + ":\n")
+                file.write(graph[len(graph)-1] + "\n")
                 lists = graph[0:len(graph) - 1]
                 for lis in lists:
-                    for i in range(0, len(graph)-1):
-                        file.write(lis[i])
+                    file.write(lis[0])
+                    for i in range(1, len(lis)):
                         file.write(",")
-                    file.write(lis[len(lis) - 1])
+                        file.write(lis[i])
                     file.write("\n")
                 file.write("\n")
 

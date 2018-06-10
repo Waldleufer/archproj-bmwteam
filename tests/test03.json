@@ -5,10 +5,10 @@
         {
           "test": [
             {
-              "v01;v02;v03;v04": {
-                "w": "h",
-                "a": "t",
-                "ev": "er"
+              "v00;v01;v02;v03": {
+                "domain": "Information about any Context Groups & Co. is not given for privacy purposes.",
+                "contextGroup": "Information about any Context Groups & Co. is not given for privacy purposes.",
+                "abstractionLayer": "Information about any Context Groups & Co. is not given for privacy purposes."
               }
             }
           ]

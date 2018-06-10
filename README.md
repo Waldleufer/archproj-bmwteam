@@ -27,3 +27,5 @@ The [graph-tool documentation](https://graph-tool.skewed.de/static/doc/index.htm
 ## Usage
 
 * [graph_analyzer](doc/graph_analyzer_doc.md)
+* [jsonparser](doc/jsonparser_doc.md)
+* [parent_handler](doc/parent_handler_doc.md)
