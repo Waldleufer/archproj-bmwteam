@@ -1,0 +1,13 @@
+digraph TestVertices {
+v00 -> v01
+v00 -> v02
+v00 -> v03
+v00 -> v04
+v01 -> v05
+v01 -> v06
+v02 -> v06
+v03 -> v07
+v03 -> v08
+v04 -> v08
+v03 -> v09
+}
