@@ -376,23 +376,54 @@ def printTopLevelConnections(graph: Graph, json_filename: str):
         if(len(colliding_nodes) != 0):
             abstraction_dict[abstraction_layer_list_new[i]] = colliding_nodes
 
-    print_connection_dict(domain_dict)
-    print_connection_dict(context_dict)
-    print_connection_dict(abstraction_dict)
+    print_connection_dict(domain_dict, "domain.csv")
+    print_connection_dict(context_dict, "context.csv")
+    print_connection_dict(abstraction_dict, "abstraction.csv")
 
 
-def print_connection_dict(dictionary: dict):
+def print_connection_dict(d: dict, file_name: str):
     """
     Gets a dictionary with Domain/ContextGroup/AbstractionLayer-names as keys and a list with all the
     Domains/ContextGroups/AbstractionLayers they overlap with as values. Prints stuff to command line / file.
 
-    :param dictionary: A dictionary containing overlapping information
+    :param d: A dictionary containing overlapping information.
+    :param file_name: the name of the output file.
     """
+    output_array = np.zeros((len(d), len(d)))
+    i = 0
+    key_list = list(d.keys())
+    for key, value in d.items():
+        for name in value:
+            j = key_list.index(name)
+            output_array[i][j] = 1
+        i = i + 1
+    np.savetxt(file_name, output_array, delimiter=",", fmt="%.0f")
+    print(output_array)
+    print("")
+    print(d)
 
-    output = np.array()
 
-    for entry in dictionary:
-        np.empty((len(dictionary), len(dictionary)))
+def print_connection_dict_advanced(d: dict, file_name: str):
+    """
+    Gets a dictionary with Domain/ContextGroup/AbstractionLayer-names as keys and a list with all the
+    Domains/ContextGroups/AbstractionLayers they overlap with as values. Prints stuff to command line / file.
+
+    :param d: A dictionary containing advanced overlapping information.
+    :param file_name: the name of the output file.
+    """
+    output_array = np.zeros((len(d), len(d)))
+    i = 0
+    key_list = list(d.keys())
+    for key, value in d.items():
+        for name_count_pair in value:
+            name, count = name_count_pair
+            j = key_list.index(name)
+            output_array[i][j] = count
+        i = i + 1
+    np.savetxt(file_name, output_array, delimiter=",", fmt="%.0f")
+    print(output_array)
+    print("")
+    print(d)
 
 
 def main(argv):
