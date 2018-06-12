@@ -336,21 +336,47 @@ def printTopLevelConnections(graph: Graph, json_filename: str):
         abstraction_layer_subgraphs.append(vertices)
 
 
+    domain_dict = {}
+    context_dict = {}
+    abstraction_dict = {}
+
     # compare subgraphs
-    for domain in domain_list_ids:
+    for i in range(0, len(domain_list_ids)):
+    #for domain in domain_list_ids:
         main_nodes = {}
-        for vtx in domain:
+        for vtx in domain_list_subgraphs[i]:
             main_nodes[str(vtx)] = True
 
-        colliding_nodes = shared_sub_graphs_direct(graph, main_nodes, domain_list_subgraphs, domain_list)
-        colliding_nodes.remove(domain)
+        colliding_nodes = shared_sub_graphs_direct(graph, main_nodes, domain_list_subgraphs, domain_list_new)
+        colliding_nodes.remove(domain_list_new[i]) #  since itself will be contained in this list
         if(len(colliding_nodes) != 0):
-            # save / print it
-            print(domain)
-            for item in colliding_nodes:
-                print(item)
-            print("")
-            print("")
+            domain_dict[domain_list_new[i]] = colliding_nodes
+
+    for i in range(0, len(context_group_ids)):
+    #for domain in domain_list_ids:
+        main_nodes = {}
+        for vtx in context_group_subgraphs[i]:
+            main_nodes[str(vtx)] = True
+
+        colliding_nodes = shared_sub_graphs_direct(graph, main_nodes, context_group_subgraphs, context_group_list_new)
+        colliding_nodes.remove(context_group_list_new[i]) #  since itself will be contained in this list
+        if(len(colliding_nodes) != 0):
+            context_dict[context_group_list_new[i]] = colliding_nodes
+
+    for i in range(0, len(abstraction_layer_ids)):
+    #for domain in domain_list_ids:
+        main_nodes = {}
+        for vtx in abstraction_layer_subgraphs[i]:
+            main_nodes[str(vtx)] = True
+
+        colliding_nodes = shared_sub_graphs_direct(graph, main_nodes, abstraction_layer_subgraphs, abstraction_layer_list_new)
+        colliding_nodes.remove(abstraction_layer_list_new[i]) #  since itself will be contained in this list
+        if(len(colliding_nodes) != 0):
+            abstraction_dict[abstraction_layer_list_new[i]] = colliding_nodes
+
+    print_connection_dict(domain_dict)
+    print_connection_dict(context_dict)
+    print_connection_dict(abstraction_dict)
 
 
 def print_connection_dict(dictionary: dict):
