@@ -27,17 +27,20 @@ import graph_analyzer
 
 STANDARD_OUT_DICT = "../out/"
 
-
-def shared_sub_graphs_direct(graph: Graph, main_nodes: dict, node_compare_list: list, head_list: list):
+def shared_sub_graphs_direct(main_nodes: dict, node_compare_list: list, head_list: list):
     """
-    :param graph: the graph whose nodes should be checked.
+    The function takes a dictionary of a subgraph and a list of lists containing other subgraphs. It also takes a "head_list"
+    which has to be the same length as node_compare_list and contains identifiers for the subgraphs at the same position as
+    in node_compare_list. The function checks whether any of the subgraphs in the list shares a node with the
+    subgraph-dictionary and returns a list of identifiers of the overlapping subgraphs.
+
     :param main_nodes: a dictionary containing True at every node_id of an original graph.
-    :param node_compare_list: list of lists each containing the node_ids of a individual subgraph
-    :param head_list: list of ids or names belonging to the head_node of each list in node_compare_list. Has to have the same order as node_compare_list
-    :return: a list of node_ids or names (depending on head_list) whose subgraphs are directly overlapping with any of the main_nodes
+    :param node_compare_list: list of lists each containing the node_ids of an individual subgraph.
+    :param head_list: list of identifiers belonging to the head_node of each list in node_compare_list.
+                        Has to have the same order and length as node_compare_list.
+    :return: a list of identifiers (depending on head_list) whose subgraphs are directly overlapping with any of the main_nodes.
     """
     result_list = []
-    #for compare_nodes_parent in node_compare_list:
     for i in range(0,len(node_compare_list)):
         compare_nodes = node_compare_list[i]
 
@@ -55,14 +58,14 @@ def shared_sub_graphs_direct(graph: Graph, main_nodes: dict, node_compare_list: 
 
 def shared_sub_graphs_indirect(graph: Graph, node_compare_list: list):
     """
-    The function takes a graph and a node_id thereof, checking whether the node is somehow connected via subgraphs to
-    the nodes in the node_node_compare_list. This includes two nodes sharing a part of their subgraph as well as
-    being indirectly connected via other nodes from the node_compare_list.
+    The function takes a graph and a list of lists containing node_ids. It checks which node_ids subgraphs
+    are connected either directly or indirectly via other node_id subgraphs. This means two nodes either sharing
+    a part of their subgraph or being indirectly connected via other nodes from the node_compare_list.
 
     :param graph: the graph whose nodes should be checked.
-    : # removed param main_node_id: the node which should be compared to other nodes from the node_compare_list
-    :param node_compare_list: the nodes to be compared with the given node_id
-    :return: a list of node_ids containing every node NOT connected to the input node_id
+    :param node_compare_list: the nodes to be compared with each other
+    :return: a list of lists, each containing all nodes in/directly connected to each other. Each node from
+                node_compare_list only appears once.
     """
     # load all subgraphs once
     loaded_nodes = []
@@ -93,7 +96,7 @@ def shared_sub_graphs_indirect(graph: Graph, node_compare_list: list):
 
 def find_adjacent(overlapping_information: list, existing_nodes: list):
     """
-    Gets a list of directly connected subgraphs and adds the indirect connections.
+    Gets a list of directly connected subgraphs and creates the indirect connections.
 
     :param overlapping_information: a list of lists each containing direct connections betweeen some subgraphs.
     :param existing_nodes: a list containing each existing node once.
@@ -291,7 +294,13 @@ def find_childnodes(graph: Graph, json_filename: str):
     return parent_dictionary
 
 
-def printTopLevelConnections(graph: Graph, json_filename: str):
+def printTopLevelConnections(graph: Graph):
+    """
+    Gets a grpah and searches all Domain/ContextGroup/AbstractionLayer-names (which can be created using parent_handler -c).
+    The function each checks the connections between every member of those and prints the result using print_connection_dict.
+
+    :param graph: The graph to be checked.
+    """
     domain_list = jsonparser.get_domainlist()
     context_group_list = jsonparser.get_context_groups()
     abstraction_layer_list = jsonparser.get_abstraction_layers()
@@ -492,7 +501,7 @@ def main(argv):
 
     if args.printTopLevelConnections:
         graph = load_graph(args.file1)
-        printTopLevelConnections(graph, args.file2)
+        printTopLevelConnections(graph)
         return
 
 
