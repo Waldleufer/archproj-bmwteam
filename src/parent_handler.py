@@ -25,7 +25,7 @@ from pprint import pprint
 import jsonparser
 import graph_analyzer
 
-STANDARD_OUT_DICT="../out/"
+STANDARD_OUT_DICT = "../out/"
 
 
 def shared_sub_graphs_direct(graph: Graph, main_nodes: dict, node_compare_list: list, head_list: list):
@@ -60,7 +60,7 @@ def shared_sub_graphs_indirect(graph: Graph, node_compare_list: list):
     being indirectly connected via other nodes from the node_compare_list.
 
     :param graph: the graph whose nodes should be checked.
-    :param main_node_id: the node which should be compared to other nodes from the node_compare_list
+    : # removed param main_node_id: the node which should be compared to other nodes from the node_compare_list
     :param node_compare_list: the nodes to be compared with the given node_id
     :return: a list of node_ids containing every node NOT connected to the input node_id
     """
@@ -376,9 +376,9 @@ def printTopLevelConnections(graph: Graph, json_filename: str):
         if(len(colliding_nodes) != 0):
             abstraction_dict[abstraction_layer_list_new[i]] = colliding_nodes
 
-    print_connection_dict(domain_dict, "domain.csv")
-    print_connection_dict(context_dict, "context.csv")
-    print_connection_dict(abstraction_dict, "abstraction.csv")
+    print_connection_dict(domain_dict, STANDARD_OUT_DICT + "domain.csv")
+    print_connection_dict(context_dict, STANDARD_OUT_DICT + "context.csv")
+    print_connection_dict(abstraction_dict, STANDARD_OUT_DICT + "abstraction.csv")
 
 
 def print_connection_dict(d: dict, file_name: str):
@@ -400,7 +400,9 @@ def print_connection_dict(d: dict, file_name: str):
     np.savetxt(file_name, output_array, delimiter=",", fmt="%.0f")
     print(output_array)
     print("")
-    print(d)
+    print(key_list)
+    print("")
+    print("")
 
 
 def print_connection_dict_advanced(d: dict, file_name: str):

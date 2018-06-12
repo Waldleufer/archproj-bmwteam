@@ -1,0 +1,120 @@
+{
+  "Context Groups": [
+    {
+      "Connectivity": [
+        {
+          "Presentation": [
+            {
+              "conntectivity01_pres": {
+                "domain": "hmi",
+                "contextGroup": "Connectivity",
+                "abstractionLayer": "Presentation - HMI"
+              }
+            }
+          ]
+        },
+        {
+          "Middleware": [
+            {
+              "conntectivity02_mid": {
+                "domain": "connectivity",
+                "contextGroup": "Connectivity",
+                "abstractionLayer": "Middleware"
+              }
+            },
+            {
+              "conntectivity03_mid": {
+                "domain": "connectivity",
+                "contextGroup": "Connectivity",
+                "abstractionLayer": "Middleware"
+              }
+            }
+          ]
+        },
+        {
+          "Services": [
+            {
+              "con_serv_01;con_serv_02": {
+                "domain": "connectivity",
+                "contextGroup": "Connectivity",
+                "abstractionLayer": "Services"
+              }
+            },
+            {
+              "con_serv_03": {
+                "domain": "connectivity",
+                "contextGroup": "Connectivity",
+                "abstractionLayer": "Services"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Multimedia": [
+        {
+          "Presentation": [
+            {
+              "ent_pres_01": {
+                "domain": "entertainment",
+                "contextGroup": "Multimedia",
+                "abstractionLayer": "Presentation"
+              }
+            }
+          ]
+        },
+        {
+          "Middleware": [
+            {
+              "ent_mid_02": {
+                "domain": "entertainment",
+                "contextGroup": "Multimedia",
+                "abstractionLayer": "Middleware"
+              }
+            },
+            {
+              "ent_mid&03": {
+                "domain": "entertainment",
+                "contextGroup": "Multimedia",
+                "abstractionLayer": "Middleware"
+              }
+            },
+            {
+              "ent_mid_04": {
+                "domain": "entertainment",
+                "contextGroup": "Multimedia",
+                "abstractionLayer": "Middleware"
+              }
+            }
+          ]
+        },
+        {
+          "Services": [
+            {
+              "ent_serv_01": {
+                "domain": "entertainment",
+                "contextGroup": "Multimedia",
+                "abstractionLayer": "Services"
+              }
+            },
+            {
+              "ent_serv_02": {
+                "domain": "entertainment",
+                "contextGroup": "Multimedia",
+                "abstractionLayer": "Services"
+              }
+            },
+            {
+              "ent_serv_03": {
+                "domain": "entertainment",
+                "contextGroup": "Multimedia",
+                "abstractionLayer": "Services"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
