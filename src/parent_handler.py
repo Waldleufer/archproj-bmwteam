@@ -16,6 +16,8 @@
 
 import sys
 import argparse
+import numpy as np
+
 from graph_tool.all import *
 
 from pprint import pprint
@@ -361,6 +363,11 @@ def print_connection_dict(dictionary: dict):
     :param dictionary: A dictionary containing overlapping information
     """
 
+    output = np.array()
+
+    for entry in dictionary:
+        np.empty((len(dictionary), len(dictionary)))
+
 
 def main(argv):
     """
@@ -368,11 +375,12 @@ def main(argv):
 
     :param argv: the argument list passed by the command line
     """
-    parser = argparse.ArgumentParser(description="A script to search a graph for all nodes mentioned in a json file (in our bmw-json format). "
-                                                 "Those nodes are then each combined into a parent node and the resulting graph is then outputted in another file. "
-                                                 "This has to be called from withing our src folder as it uses the jsonparser and graph_analyzer. "
-                                                 "Another service is the validation of parent nodes. This checks whether all children are somehow connected to eac other. "
-                                                 "For testing you can also call this with test03.dot and test03.json.")
+    parser = argparse.ArgumentParser(
+        description="A script to search a graph for all nodes mentioned in a json file (in our bmw-json format). "
+                    "Those nodes are then each combined into a parent node and the resulting graph is then outputted in another file. "
+                    "This has to be called from withing our src folder as it uses the jsonparser and graph_analyzer. "
+                    "Another service is the validation of parent nodes. This checks whether all children are somehow connected to eac other. "
+                    "For testing you can also call this with test03.dot and test03.json.")
     parser.add_argument('file1', type=str, metavar='GRAPH_FILE', help=".dot or .gt file containing a graph.")
     parser.add_argument('file2', type=str, metavar='JSON_FILE', help=".json file containing node names.")
     parser.add_argument('-c', '--createParents', action='store_true',
