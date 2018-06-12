@@ -34,11 +34,34 @@ vtx[3] in: 0 out: 4 val: Fruits
 ├─ vtx[7] in: 1 out: 0 val: Pear
 └─ vtx[6] in: 1 out: 0 val: Mango
 ```
-As we see, the node with the index `3` is the root-node of this graph. But since graphs with cyclic
-dependencies are possible, graphs with no root-node by definition could also show up.
 
-To detect cycles, we can use the `--cycle` option to detect them. With our example, the following
-output is shown:
+As we see, the node with the index `3` is the root-node of this graph. Since the indices may change
+when the graph file gets extended, we can also use the name of the node like
+`./graph_analyzer.py ../tests/test01.dot -c Fruits` to get the exact same result as shown before and
+don't have to fear that the behavior of the command will change when the *.dot file gets edited.
+
+In this case, we knew from the start that `Fruits` was the root-node. However this is not always
+clear and since graphs with cyclic dependencies are also possible, graphs with no root-node by
+definition could show up as well.
+
+But if we want to detect potential root-nodes, we could use the `--subgraphs` option, which analyzes
+the relations of all nodes to each other and print a list of sub-graphs occurring in the main graph.
+
+```
+Found 3 sub-graphs:
+sub[0] has 4 children, val: Apple
+         - includes sub[4]  val: Green
+sub[3] has 8 children, val: Fruits
+         - includes sub[0]  val: Apple
+         - includes sub[4]  val: Green
+sub[4] has 2 children, val: Green
+```
+
+If we look now for the node which contains the most children and sub-graphs, we will recognize that
+the node `Fruits` is most likely our searched root-node.
+
+If we want to find cycles in the graph, we can use the `--cycle` option to detect them. With our
+example, the following output is shown:
 ```
 Graph is a DAG. No cycles found!
 ```
@@ -113,5 +136,6 @@ vtx[3] in: 0 out: 4 val: Fruits
 
 Note that the indices `5` and  `8` got included in the new `ApplesWithDifferentColors`-node as well
 as the nodes with the indices `2` and `8`, which got selected by their name. However, the rest of
-the nodes and their indices remain the same.
+the nodes and their indices remain the same. If a interpretation of a number as name is necessary,
+we can escape the input with a dot, followed by the number we want to use as node name (e.g. `.5`).
 
