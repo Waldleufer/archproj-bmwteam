@@ -291,28 +291,44 @@ def find_subgraphs(graph: Graph) -> dict:
     return subgraph_dict
 
 
-def export_subgraphs(subgraph_dict: dict, dict_range=range(0, 20)):
+def export_subgraph(graph: Graph, sub_vtx: int, file_name: str):
     """
-    Exports a given list of sub-graphs into a `../out/`-directory as `.svg`-files. Since this call may take a long time
-    to compute, it is also possible to export only a part of the given list. This makes splitting the task into various
-    chunks possible.
+    Exports the given sub-graph into the `../out/`-directory as `.svg`-file. Since this call may take a long time to
+    compute, it should be used carefully.
 
-    :param subgraph_dict: the dictionary containing the root-vertex and the sub-graph as `int` and `GraphView` objects.
-    :param dict_range: a range to export only a part of the given input dict
+    :param graph: the input graph
+    :param sub_vtx: the root node of the sub-graph
+    :param file_name: the name of the exported *.svg-file
     """
-    counter = dict_range.start
-
     if not os.path.isdir(DEFAULT_OUTPUT_DIR):
         os.mkdir(DEFAULT_OUTPUT_DIR)
 
-    for root, subgraph in subgraph_dict.items():
-        graph_draw(subgraph,
-                   vertex_fill_color=subgraph.vp.root,
-                   vertex_text=subgraph.vertex_index,
-                   output=DEFAULT_OUTPUT_DIR + "sub" + str(counter) + ".svg")
-        counter += 1
-        if counter > dict_range.stop:
-            break
+    sub = get_subgraph(graph, sub_vtx)
+    pos = radial_tree_layout(graph, graph.vertex(sub_vtx))
+
+    graph_draw(sub,
+               pos=pos,
+               vertex_fill_color='#8ae234cc',  # rrggbbaa
+               vertex_text=sub.vertex_index,
+               output=DEFAULT_OUTPUT_DIR + file_name + ".svg")
+
+
+def get_subgraph(graph: Graph, sub_vtx) -> GraphView:
+    """
+    Gets the given sub-graph from the source graph and stores the result in a new `GraphView` object. This function
+    can be used recursive on it's self.
+
+    :param graph: the input graph
+    :param sub_vtx: the root node of the sub-graph
+    :return: a new `GraphView` with the children of the given sub-graph
+    """
+    sub_set = collect_subgraph_vertices(graph, sub_vtx)
+    filter_prop = graph.new_vertex_property("bool")
+    for vtx in graph.vertices():
+        if vtx in sub_set:
+            filter_prop.a[int(vtx)] = True
+
+    return GraphView(graph, vfilt=filter_prop)
 
 
 def list_shared_sub_vertices(graph: Graph, vtx_a: int, vtx_b: int) -> list:
@@ -570,9 +586,11 @@ def main(argv):
                         help="Merges the given list of node IDs together into one group-node.")
     parser.add_argument('--export', type=str, nargs=1, metavar='FILE-NAME',
                         help="Option to set a specific file name for a exported *.gt-file. This option works in "
-                        "combination with '--exclude-nodes', '--exclude-subgraphs', '--group'.")
+                        "combination with '--exclude-nodes', '--exclude-subgraphs', '--group', '--export-subgraph'.")
     parser.add_argument('--add-parent',  nargs='+', metavar=('PARENT_NODE_NAME', 'NODE_IDs|NODE_NAMEs'),
                         help="Adds a new parent node to the given nodes.")
+    parser.add_argument('--export-subgraph', nargs=1, metavar='NODE_ID|NODE_NAME',
+                        help="Exports the given sub-graph into a *.svg-file.")
 
     args = parser.parse_args()
 
@@ -702,9 +720,6 @@ def main(argv):
         else:
             export_graph(group(graph, group_name, vtx_list))
 
-    if args.export:
-        print("Exported graph to '%s.gt'" % args.export[0])
-
     if args.add_parent:
         if len(args.add_parent) <= 1:
             print("Too few arguments for '--add-parent'. Expected (str, int|str, ...).")
@@ -728,6 +743,14 @@ def main(argv):
             export_graph(add_parent(graph, parent_name, vtx_list), args.export[0])
         else:
             export_graph(add_parent(graph, parent_name, vtx_list))
+
+    if args.export_subgraph:
+        node = parse_node_values(graph, args.export_subgraph)
+
+        if args.export:
+            export_subgraph(graph, node[0], args.export[0])
+        else:
+            export_subgraph(graph, node[0], "sub" + str(node))
 
 
 if __name__ == "__main__":
