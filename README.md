@@ -31,3 +31,4 @@ The [graph-tool documentation](https://graph-tool.skewed.de/static/doc/index.htm
 * [json_validator](doc/json_validator_doc.md)
 * [parent_handler](doc/parent_handler_doc.md)
 * [grep_adapter](doc/grep_adapter_doc.md)
+* [bmwArchitecture_to_json](/doc/bmwArchitecture_to_json_doc.md)
