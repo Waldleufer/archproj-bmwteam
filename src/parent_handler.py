@@ -353,41 +353,41 @@ def printTopLevelConnections(graph: Graph):
 
     # compare subgraphs
     for i in range(0, len(domain_list_ids)):
-    #for domain in domain_list_ids:
-        main_nodes = {}
-        for vtx in domain_list_subgraphs[i]:
-            main_nodes[str(vtx)] = True
+        domain_dict[domain_list_new[i]] = []
+        for j in range(0, len(domain_list_ids)):
+            collision_list = graph_analyzer.list_shared_sub_vertices(graph, domain_list_ids[i], domain_list_ids[j])
+            collisions = len(collision_list)
+            if i == j:
+                collisions = -1
 
-        colliding_nodes = shared_sub_graphs_direct(main_nodes, domain_list_subgraphs, domain_list_new)
-        colliding_nodes.remove(domain_list_new[i]) #  since itself will be contained in this list
-        if(len(colliding_nodes) != 0):
-            domain_dict[domain_list_new[i]] = colliding_nodes
+            pair = (domain_list_new[j], collisions)
+            domain_dict[domain_list_new[i]].append(pair)
 
     for i in range(0, len(context_group_ids)):
-    #for domain in domain_list_ids:
-        main_nodes = {}
-        for vtx in context_group_subgraphs[i]:
-            main_nodes[str(vtx)] = True
+        context_dict[context_group_list_new[i]] = []
+        for j in range(0, len(context_group_ids)):
+            collision_list = graph_analyzer.list_shared_sub_vertices(graph, context_group_ids[i], context_group_ids[j])
+            collisions = len(collision_list)
+            if i == j:
+                collisions = -1
 
-        colliding_nodes = shared_sub_graphs_direct(main_nodes, context_group_subgraphs, context_group_list_new)
-        colliding_nodes.remove(context_group_list_new[i]) #  since itself will be contained in this list
-        if(len(colliding_nodes) != 0):
-            context_dict[context_group_list_new[i]] = colliding_nodes
+            pair = (context_group_list_new[j], collisions)
+            context_dict[context_group_list_new[i]].append(pair)
 
     for i in range(0, len(abstraction_layer_ids)):
-    #for domain in domain_list_ids:
-        main_nodes = {}
-        for vtx in abstraction_layer_subgraphs[i]:
-            main_nodes[str(vtx)] = True
+        abstraction_dict[abstraction_layer_list_new[i]] = []
+        for j in range(0, len(abstraction_layer_ids)):
+            collision_list = graph_analyzer.list_shared_sub_vertices(graph, abstraction_layer_ids[i], abstraction_layer_ids[j])
+            collisions = len(collision_list)
+            if i == j:
+                collisions = -1
 
-        colliding_nodes = shared_sub_graphs_direct(main_nodes, abstraction_layer_subgraphs, abstraction_layer_list_new)
-        colliding_nodes.remove(abstraction_layer_list_new[i]) #  since itself will be contained in this list
-        if(len(colliding_nodes) != 0):
-            abstraction_dict[abstraction_layer_list_new[i]] = colliding_nodes
+            pair = (abstraction_layer_list_new[j], collisions)
+            abstraction_dict[abstraction_layer_list_new[i]].append(pair)
 
-    print_connection_dict(domain_dict, STANDARD_OUT_DICT + "domain.csv")
-    print_connection_dict(context_dict, STANDARD_OUT_DICT + "context.csv")
-    print_connection_dict(abstraction_dict, STANDARD_OUT_DICT + "abstraction.csv")
+    print_connection_dict_advanced(domain_dict, STANDARD_OUT_DICT + "domain.csv")
+    print_connection_dict_advanced(context_dict, STANDARD_OUT_DICT + "context.csv")
+    print_connection_dict_advanced(abstraction_dict, STANDARD_OUT_DICT + "abstraction.csv")
 
 
 def print_connection_dict(d: dict, file_name: str):
