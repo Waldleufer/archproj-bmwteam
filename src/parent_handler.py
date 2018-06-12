@@ -31,7 +31,8 @@ def shared_sub_graphs_direct(graph: Graph, main_nodes: dict, node_compare_list: 
     :param graph: the graph whose nodes should be checked.
     :param main_nodes: a dictionary containing True at every node_id of an original graph.
     :param node_compare_list: list of lists each containing the node_ids of a individual subgraph
-    :return: a list of node_ids whose subgraphs are directly overlapping with any of the main_nodes
+    :param head_list: list of ids or names belonging to the head_node of each list in node_compare_list. Has to have the same order as node_compare_list
+    :return: a list of node_ids or names (depending on head_list) whose subgraphs are directly overlapping with any of the main_nodes
     """
     result_list = []
     #for compare_nodes_parent in node_compare_list:
@@ -288,6 +289,79 @@ def find_childnodes(graph: Graph, json_filename: str):
     return parent_dictionary
 
 
+def printTopLevelConnections(graph: Graph, json_filename: str):
+    domain_list = jsonparser.get_domainlist()
+    context_group_list = jsonparser.get_context_groups()
+    abstraction_layer_list = jsonparser.get_abstraction_layers()
+
+    domain_list_new = []
+    context_group_list_new = []
+    abstraction_layer_list_new = []
+
+    for d in domain_list:
+        if ("no Match" in d) or ("kein Match" in d):
+            continue
+        domain_list_new.append(d)
+
+    for c in context_group_list:
+        if ("no Match" in c) or ("kein Match" in c):
+            continue
+        context_group_list_new.append(c)
+
+    for a in abstraction_layer_list:
+        if ("no Match" in a) or ("kein Match" in a):
+            continue
+        abstraction_layer_list_new.append(a)
+
+    domain_list_ids = graph_analyzer.parse_node_values(graph, domain_list_new)
+    context_group_ids = graph_analyzer.parse_node_values(graph, context_group_list_new)
+    abstraction_layer_ids = graph_analyzer.parse_node_values(graph, abstraction_layer_list_new)
+
+    domain_list_subgraphs = []
+    context_group_subgraphs = []
+    abstraction_layer_subgraphs = []
+
+
+    # load vertices
+    for d in domain_list_ids:
+        vertices = graph_analyzer.collect_subgraph_vertices(graph, d)
+        domain_list_subgraphs.append(vertices)
+
+    for c in context_group_ids:
+        vertices = graph_analyzer.collect_subgraph_vertices(graph, c)
+        context_group_subgraphs.append(vertices)
+
+    for a in abstraction_layer_ids:
+        vertices = graph_analyzer.collect_subgraph_vertices(graph, a)
+        abstraction_layer_subgraphs.append(vertices)
+
+
+    # compare subgraphs
+    for domain in domain_list_ids:
+        main_nodes = {}
+        for vtx in domain:
+            main_nodes[str(vtx)] = True
+
+        colliding_nodes = shared_sub_graphs_direct(graph, main_nodes, domain_list_subgraphs, domain_list)
+        colliding_nodes.remove(domain)
+        if(len(colliding_nodes) != 0):
+            # save / print it
+            print(domain)
+            for item in colliding_nodes:
+                print(item)
+            print("")
+            print("")
+
+
+def print_connection_dict(dictionary: dict):
+    """
+    Gets a dictionary with Domain/ContextGroup/AbstractionLayer-names as keys and a list with all the
+    Domains/ContextGroups/AbstractionLayers they overlap with as values. Prints stuff to command line / file.
+
+    :param dictionary: A dictionary containing overlapping information
+    """
+
+
 def main(argv):
     """
     Main function which parses the passed arguments.
@@ -305,6 +379,8 @@ def main(argv):
                         help="Create parents according to the json file.")
     parser.add_argument('-v', '--validate', action='store_true',
                         help="Validate connection of the children in the json file.")
+    parser.add_argument('-p', '--printTopLevelConnections', action='store_true',
+                        help="Prints Connections between domains & co. and which nodes cause them.")
     args = parser.parse_args()
 
     if not args.file1 or not args.file2:
@@ -345,6 +421,11 @@ def main(argv):
 
         else:
             print("Everything is fine. All nodes with the same parent are somewhere connected within their subgraphs")
+        return
+
+    if args.printTopLevelConnections:
+        graph = load_graph(args.file1)
+        printTopLevelConnections(graph, args.file2)
         return
 
 
