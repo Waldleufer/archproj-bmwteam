@@ -14,30 +14,67 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import argparse
 import json
+import sys
 
 
-def addListWithSameGroups(jsonfile: str, componentList: list, domain: str, contextGroup: str, hardwareGroup: str):
+def write_list_with_same_groups(json_file: str, component_list: str, domain: str,
+                                context_group: str, hardware_group: str):
     """
-    appends a List of components to the jsonfile that have the same domain, the same contextGroup and the same hardwareGroup
-    param jsonfile: name of file where to add the names as string
-    param namelist: list with names to add
-    param domain: domain that shall be apllied to all items of namelist
-    param contextGroup: contextGroup of all items
-    param hardwareGroup: hardwareGroup of all items
+    appends a List of components to the json_file that have the same domain,
+    the same context_group and the same hardwareGroup
+
+    :param json_file: name of file where to add the names as string
+    :param component_list: File with \n separated component names to add
+    :param domain: domain that shall be applied to all items of component_list
+    :param context_group: contextGroup of all items
+    :param hardware_group: hardwareGroup of all items
     """
-    with open(jsonfile, "a") as append_file:
+    with open(json_file, "w") as write_file:
 
-        dataList = list()
+        components = map(str.strip, open(component_list).readlines())
 
-        for component in componentList:
+        data_list = list()
+
+        for component in components:
 
             comp = {
                 component: {
                     "domain": domain,
-                    "contextGroup": contextGroup,
-                    "hardwareGroup": hardwareGroup
+                    "contextGroup": context_group,
+                    "hardwareGroup": hardware_group
                 }
             }
-            dataList.append(comp)
-        append_file.write(json.dumps(dataList, indent=2))
+            data_list.append(comp)
+        write_file.write(json.dumps(data_list, indent=2))
+
+
+def main(argv):
+    """
+        runs the script from the command line
+    """
+
+    parser = argparse.ArgumentParser(description="A tool to semi automatically create formatted sections according "
+                                                 "to bmwSoftwareArchitecture_archproj-bmwteam-schema.json")
+    parser.add_argument('json_file', type=str, metavar='OUTPUT_FILE', help="Output file that will be overwritten")
+    parser.add_argument('component_list', type=str, metavar='COMPONENT_LIST_FILE',
+                        help="A '\\n' separated list of all components that shall have the same "
+                             "domain context- and hardwareGroup afterwards")
+    parser.add_argument('domain', type=str, metavar='domain',
+                        help="the name of the domain")
+    parser.add_argument('context', type=str, metavar='contextGroup',
+                        help="the name of the contextGroup")
+    parser.add_argument('hardware', type=str, metavar='hardwareGroup',
+                        help="the name of the hardwareGroup")
+    args = parser.parse_args()
+
+    if not args.json_file or not args.component_list or not args.domain or not args.context or not args.hardware:
+        print("Try 'bmwArchitecture_to_json -h' for more information.")
+        sys.exit(1)
+    else:
+        write_list_with_same_groups(args.json_file, args.component_list, args.domain, args.context, args.hardware)
+
+
+if __name__ == "__main__":
+    main(sys.argv[1:])
