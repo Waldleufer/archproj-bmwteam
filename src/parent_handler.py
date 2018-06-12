@@ -84,7 +84,7 @@ def shared_sub_graphs_indirect(graph: Graph, node_compare_list: list):
         for vtx in main_nodes_vtx:
             main_nodes[str(vtx)] = True
 
-        overlapping_subgraphs = shared_sub_graphs_direct(graph, main_nodes, current_node_compare_list, head_list)
+        overlapping_subgraphs = shared_sub_graphs_direct(main_nodes, current_node_compare_list, head_list)
         overlapping_information.append(overlapping_subgraphs)
         overlapping_information[i].append(node_compare_list[i])
 
@@ -358,7 +358,7 @@ def printTopLevelConnections(graph: Graph):
         for vtx in domain_list_subgraphs[i]:
             main_nodes[str(vtx)] = True
 
-        colliding_nodes = shared_sub_graphs_direct(graph, main_nodes, domain_list_subgraphs, domain_list_new)
+        colliding_nodes = shared_sub_graphs_direct(main_nodes, domain_list_subgraphs, domain_list_new)
         colliding_nodes.remove(domain_list_new[i]) #  since itself will be contained in this list
         if(len(colliding_nodes) != 0):
             domain_dict[domain_list_new[i]] = colliding_nodes
@@ -369,7 +369,7 @@ def printTopLevelConnections(graph: Graph):
         for vtx in context_group_subgraphs[i]:
             main_nodes[str(vtx)] = True
 
-        colliding_nodes = shared_sub_graphs_direct(graph, main_nodes, context_group_subgraphs, context_group_list_new)
+        colliding_nodes = shared_sub_graphs_direct(main_nodes, context_group_subgraphs, context_group_list_new)
         colliding_nodes.remove(context_group_list_new[i]) #  since itself will be contained in this list
         if(len(colliding_nodes) != 0):
             context_dict[context_group_list_new[i]] = colliding_nodes
@@ -380,7 +380,7 @@ def printTopLevelConnections(graph: Graph):
         for vtx in abstraction_layer_subgraphs[i]:
             main_nodes[str(vtx)] = True
 
-        colliding_nodes = shared_sub_graphs_direct(graph, main_nodes, abstraction_layer_subgraphs, abstraction_layer_list_new)
+        colliding_nodes = shared_sub_graphs_direct(main_nodes, abstraction_layer_subgraphs, abstraction_layer_list_new)
         colliding_nodes.remove(abstraction_layer_list_new[i]) #  since itself will be contained in this list
         if(len(colliding_nodes) != 0):
             abstraction_dict[abstraction_layer_list_new[i]] = colliding_nodes
