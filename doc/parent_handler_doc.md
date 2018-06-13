@@ -7,11 +7,28 @@ This script makes use of `graph_analyzer.py` and `jsonparser.py` and must be cal
 It gets a path to a graph file (either .dot or .gt) and to a .json file (in the same format as `jsonparser.py` uses it).
 Using those it can create new parents in the graph and save it to `/out` or validate some things in it.
 
-The possible commands are:
+The required argument is:
+
+* `GRAPH_FILE` what should be:
+
+    either a `.dot` file when using the `-c` option as specified below,
+
+    or the `.gt` file **that results** from the `-c` operation for all other options.
+
+The optional arguments are:
+
+* `-j JSON_FILE` or `--json_file JSON_FILE` is the argument where to specify the `JSON_FILE` that shall be used.
 
 * `-c` or `--createParents` takes all components from the .json file (usually `task dependencies bmw-arch.json`) and finds every occurrence of the names in the graph - details to the .json and search follow later. Components containing "kein Match" or "no Match" are skipped. For each component a new node with the exact same name is created within the graph. This node points towards any node that could be found using its name. Afterwards every domain, context group and abstraction layer is extracted from the .json file and more nodes are created (again eac one for every name) - those nodes then point towards their respective component nodes.
 
 * `-v` or `--validate` takes all components from the .json file (usually `task dependencies bmw-arch.json`) and finds every occurrence of the names in the graph just like when using `-c`. For every component all childrens subgraphs are inspected. If they intersect with each other directly or even indirectly over other subgraphs from other children, then everything is considered fine. If there are at least 2 nodes not connected directly or indirectly via subgraphs, the whole component and its childrens connections are printed and also stored as `parent_handler_validation.txt` in the `/out` directory.
+
+* `-p` or `--print_top_level_connections` takes the given `.gt` file and analyzes the top level connections.
+Output files are placed in the out directory (`../out/`) and are named `domain.csv`, `context.csv` and `abstraction.csv`
+representing the connections either between all domains, all contextGroups or all abstractionLayers.
+In the `.csv` files a matrix containing the overlapping information is shown. At the bottom a list of the TopLevel arguments
+shows the sequence of the columns and if transposed it shows the sequence of the rows.
+
 
 
 The file `task dependencies bmw-arch.json` is a variant of `bmw-arch.json` where all components names were altered in a way we believe to best reflect search terms needed to find the corresponding nodes in the provided .dot files using `graph_analyzer.py`. These names are built like "App;CD&Speech". Inside the search terms ";" is used as union, while "&" stands for intersection. Also "&" binds stronger than ";".
