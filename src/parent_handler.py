@@ -521,7 +521,7 @@ def main(argv):
             print("Everything is fine. All nodes with the same parent are somewhere connected within their subgraphs")
         return
 
-    if args.printTopLevelConnections:
+    if args.print_top_level_connections:
         graph = load_graph(args.file1)
         print_top_level_connections(graph)
         return
