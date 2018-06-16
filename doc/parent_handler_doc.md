@@ -21,20 +21,22 @@ The optional arguments are:
 
 * `-c` or `--createParents` takes all components from the .json file (usually `task dependencies bmw-arch.json`) and finds every occurrence of the names in the graph - details to the .json and search follow later. Components containing "kein Match" or "no Match" are skipped. For each component a new node with the exact same name is created within the graph. This node points towards any node that could be found using its name. Afterwards every domain, context group and abstraction layer is extracted from the .json file and more nodes are created (again eac one for every name) - those nodes then point towards their respective component nodes.
 
-* `-v` or `--validate` takes all components from the .json file (usually `task dependencies bmw-arch.json`) and finds every occurrence of the names in the graph just like when using `-c`. For every component all childrens subgraphs are inspected. If they intersect with each other directly or even indirectly over other subgraphs from other children, then everything is considered fine. If there are at least 2 nodes not connected directly or indirectly via subgraphs, the whole component and its childrens connections are printed and also stored as `parent_handler_validation.txt` in the `/out` directory.
+* `-v` or `--validate` takes all components from the .json file (usually `task dependencies bmw-arch.json`) and finds every occurrence of the names in the graph just like when using `-c`. 
+For every component, Domain, Context Group and Abstraction Layer all childrens subgraphs are inspected. 
+If they intersect with each other directly or even indirectly over other subgraphs from other children, then everything is considered fine. 
+If there are at least 2 nodes not connected directly or indirectly via subgraphs, the whole component and its childrens connections are printed and also stored as `parent_handler_validation.txt` in the `/out` directory.
 
 * `-p` or `--print_top_level_connections` takes the given `.gt` file and analyzes the top level connections.
-Output files are placed in the out directory (`../out/`) and are named `domain.csv`, `context.csv` and `abstraction.csv`
-representing the connections either between all domains, all contextGroups or all abstractionLayers.
-In the `.csv` files a matrix containing the overlapping information is shown. At the bottom a list of the TopLevel arguments
-shows the sequence of the columns and if transposed it shows the sequence of the rows.
+Output files are placed in the out directory (`../out/`) and are named `domain.csv`, `context.csv` and `abstraction.csv`, as well as `domain_component_collisions.csv`, `context_component_collisions.csv` and `abstraction_component_collisions.csv` representing the connections either between all domains, all contextGroups or all abstractionLayers. The first three count all overlapping nodes in total, the last three ones count overlapping components.
+In the `.csv` files a matrix containing the overlapping information is shown. 
+At the bottom a list of the TopLevel arguments shows the sequence of the columns and if transposed it shows the sequence of the rows.
 
 
 
 The file `task dependencies bmw-arch.json` is a variant of `bmw-arch.json` where all components names were altered in a way we believe to best reflect search terms needed to find the corresponding nodes in the provided .dot files using `graph_analyzer.py`. These names are built like "App;CD&Speech". Inside the search terms ";" is used as union, while "&" stands for intersection. Also "&" binds stronger than ";".
 
 
-An example for the whole `parent_handler` is given in `test03.dot` and `test03.json`:
+An example is given in `test03.dot` and `test03.json`:
 
 First let's take a look at the whole `test03.dot`
 
@@ -76,7 +78,7 @@ whereas `test03.json` contains
 }
 ```
 
-Typing `./parent_handler ./test03.dot ./test03.json -c` creates a parent node called "v00;v01;v02;v03" as contained in the .json file. According to how the search works with this name, `parent_handler.py` finds the nodes `v00`, `v01`, `v02` and `v03`, which are then connected to the parent node resulting in the following output graph called `parent_handler_output.gt`:
+Typing `./parent_handler ./test03.dot -j ./test03.json -c` creates a parent node called "v00;v01;v02;v03" as contained in the .json file. According to how the search works with this name, `parent_handler.py` finds the nodes `v00`, `v01`, `v02` and `v03`, which are then connected to the parent node resulting in the following output graph called `parent_handler_output.gt`:
 
 ```
 vtx[12] in: 0 out: 4 val: v00;v01;v02;v03
@@ -93,7 +95,7 @@ vtx[12] in: 0 out: 4 val: v00;v01;v02;v03
    └─ vtx[9] in: 2 out: 0 val: v09
 ```
 
-Using this new graph (or even the old one) like `./parent_handler ./parent_handler_output.gt ./test03.json -v` starts a validation as described. Since `v00`, `v01` and `v02` are connected directly or indirectly via subgraphs but `v03` is in no way connected, the validation will print a warning containing all children of the node `v00;v01;v02;v03` and their connections:
+Using this new graph (when only checking components, the old graph would work as well) like `./parent_handler ./parent_handler_output.gt -j ./test03.json --validate_components_only` starts a validation (only of all components) as described. This example won't show details about Domains, Context Groups or Abstraction Layers - thats why this option was implemented. Since `v00`, `v01` and `v02` are connected directly or indirectly via subgraphs but `v03` is in no way connected, the validation will print a warning containing all children of the node `v00;v01;v02;v03` and their connections:
 It puts
 
 ```

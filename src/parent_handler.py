@@ -327,6 +327,97 @@ def find_childnodes(graph: Graph, json_filename: str):
     return parent_dictionary
 
 
+def get_validation_dict_domains(graph: Graph):
+    """
+    The function gets a graph and searches it for all Domain names. It returns a dictionary which can be given to
+    validate_children_subgraphs, checking the Isolation Constraint for all Domains individually. Thus
+    its form is the name of a Domain as key and all this Domains direct children in a list as values.
+
+    :param graph: the graph to be searched
+    :return: a dictionary with Domain names as keys and all found children in a list as value
+    """
+    domain_list = jsonparser.get_domainlist()
+    domain_list_new = []
+    for d in domain_list:
+        if ("no Match" in d) or ("kein Match" in d):
+            continue
+        domain_list_new.append(d)
+
+    domain_list_ids = graph_analyzer.parse_node_values(graph, domain_list_new)
+
+    domain_dict = {}
+    for d in domain_list_new:
+        domain_dict[d] = []
+
+    for d in range(0, len(domain_list_ids)):
+        domain_childnodes = graph.get_out_neighbours(domain_list_ids[d])
+        for child in domain_childnodes:
+            domain_dict[domain_list_new[d]].append(child)
+
+    return domain_dict
+
+
+def get_validation_dict_context_groups(graph: Graph):
+    """
+    The function gets a graph and searches it for all Context Group names. It returns a dictionary which can be given to
+    validate_children_subgraphs, checking the Isolation Constraint for all Context Groups individually. Thus
+    its form is the name of a Context Group as key and all this Context Groups direct children in a list as values.
+
+    :param graph: the graph to be searched
+    :return: a dictionary with Context Group names as keys and all found children in a list as value
+    """
+    context_group_list = jsonparser.get_context_groups()
+    context_group_list_new = []
+    for c in context_group_list:
+        if ("no Match" in c) or ("kein Match" in c):
+            continue
+        context_group_list_new.append(c)
+
+    context_group_list_ids = graph_analyzer.parse_node_values(graph, context_group_list_new)
+
+    context_group_dict = {}
+    for c in context_group_list_new:
+        context_group_dict[c] = []
+
+    for c in range(0, len(context_group_list_ids)):
+        context_group_childnodes = graph.get_out_neighbours(context_group_list_ids[c])
+        for child in context_group_childnodes:
+            context_group_dict[context_group_list_new[c]].append(child)
+
+    return context_group_dict
+
+
+def get_validation_dict_abstraction_layers(graph: Graph):
+    """
+    The function gets a graph and searches it for all Abstraction Layer names. It returns a dictionary which can be
+    given to validate_children_subgraphs, checking the Isolation Constraint for all Abstraction Layers individually.
+    Thus its form is the name of a Abstraction Layer as key and all this Abstraction Layers direct children
+    in a list as values.
+
+    :param graph: the graph to be searched
+    :return: a dictionary with Abstraction Layer names as keys and all found children in a list as value
+    """
+    abstraction_layer_list = jsonparser.get_abstraction_layers()
+    abstraction_layer_list_new = []
+    for a in abstraction_layer_list:
+        if ("no Match" in a) or ("kein Match" in a):
+            continue
+        abstraction_layer_list_new.append(a)
+
+    abstraction_layer_list_ids = graph_analyzer.parse_node_values(graph, abstraction_layer_list_new)
+
+    abstraction_layer_dict = {}
+    for a in abstraction_layer_list_new:
+        abstraction_layer_dict[a] = []
+
+    for a in range(0, len(abstraction_layer_list_ids)):
+        abstraction_layer_childnodes = graph.get_out_neighbours(abstraction_layer_list_ids[a])
+        for child in abstraction_layer_childnodes:
+            abstraction_layer_dict[abstraction_layer_list_new[a]].append(child)
+
+    return abstraction_layer_dict
+
+
 def print_top_level_connections(graph: Graph):
     """
     Gets a graph and searches all Domain/ContextGroup/AbstractionLayer-names
@@ -586,7 +677,7 @@ def main(argv):
                     "in another file. "
                     "This has to be called from withing our src folder as it uses the jsonparser and graph_analyzer. "
                     "Another service is the validation of parent nodes. This checks whether all children are somehow "
-                    "connected to eac other. "
+                    "connected to each other. "
                     "For testing you can also call this with test03.dot and test03.json.")
     parser.add_argument('file1', type=str, metavar='GRAPH_FILE', help=".dot or .gt file containing a graph.")
     parser.add_argument('-j', '--json_file', type=str, metavar='JSON_FILE', help=".json file containing node names.")
@@ -594,6 +685,8 @@ def main(argv):
                         help="Create parents according to the json file.")
     parser.add_argument('-v', '--validate', action='store_true',
                         help="Validate connection of the children in the json file.")
+    parser.add_argument('--validate_components_only', action='store_true',
+                        help="Calls the normal validation, but only for Components. Used for examples")
     parser.add_argument('-p', '--print_top_level_connections', action='store_true',
                         help="Prints Connections between domains & co. and which nodes cause them.")
     args = parser.parse_args()
@@ -609,15 +702,31 @@ def main(argv):
         create_parents(args.file1, args.json_file)
         return
 
-    if args.validate:
+    if args.validate or args.validate_components_only:
         if not args.json_file:
             print("Try 'parent_handler -h' for more information.")
             sys.exit(1)
         graph = load_graph(args.file1)
-        print("find_childnodes has begun")
-        parent_dict = find_childnodes(graph, args.json_file)
+        print("creation of dictionaries has begun")
+        component_dict = find_childnodes(graph, args.json_file)
+        validation_dict_domains = {}
+        validation_dict_context_groups = {}
+        validation_dict_abstraction_layers = {}
+        if args.validate_components_only is False:
+            validation_dict_domains = get_validation_dict_domains(graph)
+            validation_dict_context_groups = get_validation_dict_context_groups(graph)
+            validation_dict_abstraction_layers = get_validation_dict_abstraction_layers(graph)
         print("validation has begun")
-        trouble_list = validate_children_subgraphs(graph, parent_dict)
+        print("\nvalidating Isolation Constraint of all Components\n")
+        trouble_list1 = validate_children_subgraphs(graph, component_dict)
+        print("\nvalidating Isolation Constraint of all Domains\n")
+        trouble_list2 = validate_children_subgraphs(graph, validation_dict_domains)
+        print("\nvalidating Isolation Constraint of all Context Groups\n")
+        trouble_list3 = validate_children_subgraphs(graph, validation_dict_context_groups)
+        print("\nvalidating Isolation Constraint of all Abstraction Layers\n")
+        trouble_list4 = validate_children_subgraphs(graph, validation_dict_abstraction_layers)
+
+        trouble_list = trouble_list1 + trouble_list2 + trouble_list3 + trouble_list4
         if len(trouble_list) != 0:
             # print on command line
             print("the following nodes and their subgraphs aren't connected even though they share the same parent:")
