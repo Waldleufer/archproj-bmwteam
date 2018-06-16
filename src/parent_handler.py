@@ -20,12 +20,39 @@ import numpy as np
 
 from graph_tool.all import *
 
-# from pprint import pprint
+from pprint import pprint
 
 import jsonparser
 import graph_analyzer
 
 STANDARD_OUT_DICT = "../out/"
+
+
+def shared_sub_graphs_direct_list(node_compare_list1: list, node_compare_list2: list, head_list1: list, head_list2: list):
+    """
+    The function takes two lists of lists containing subgraphs that should be checked for overlap with each element of
+    the other list. also takes two "head_lists" which have to be the same length as their respective node_compare_list
+    and contain identifiers for the subgraphs at the same position as in node_compare_list.
+    The function is a helper to call shared_sub_graphs_direct with every element of the first list and the second list.
+
+    :param node_compare_list1: list of lists each containing the node_ids of an individual subgraph.
+    :param node_compare_list2: list of lists each containing the node_ids of an individual subgraph.
+    :param head_list1: list of identifiers belonging to the head-node of each list in node_compare_list1.
+                        Has to have the same order and length as node_compare_list1.
+    :param head_list2: list of identifiers belonging to the head-node of each list in node_compare_list2.
+                        Has to have the same order and length as node_compare_list2.
+    :return: a list of identifier pairs (depending on the head_lists) whose subgraphs are directly overlapping.
+    """
+    result = []
+    for i in range(0, len(node_compare_list1)):
+        ncl1_dict = {}
+        for node in node_compare_list1[i]:
+            ncl1_dict[str(node)] = True
+
+        result_i = shared_sub_graphs_direct(ncl1_dict, node_compare_list2, head_list2)
+        for name in result_i:
+            result.append((head_list1[i], name))
+    return result
 
 
 def shared_sub_graphs_direct(main_nodes: dict, node_compare_list: list, head_list: list):
@@ -302,7 +329,7 @@ def find_childnodes(graph: Graph, json_filename: str):
 
 def print_top_level_connections(graph: Graph):
     """
-    Gets a grpah and searches all Domain/ContextGroup/AbstractionLayer-names
+    Gets a graph and searches all Domain/ContextGroup/AbstractionLayer-names
     (which can be created using parent_handler -c).
     The function each checks the connections between every member of those
     and prints the result using print_connection_dict.
@@ -336,65 +363,161 @@ def print_top_level_connections(graph: Graph):
     context_group_ids = graph_analyzer.parse_node_values(graph, context_group_list_new)
     abstraction_layer_ids = graph_analyzer.parse_node_values(graph, abstraction_layer_list_new)
 
-    domain_list_subgraphs = []
+    domain_subgraphs = []  # length equals amount of domains.
+                           # Contains all nodes of one domain and its subgraph at each field.
+                           # [[subgraph1],[subgraph2]]
+    domain_child_subgraphs = []  # length equals amount of domains.
+                                 # Contains a list of lists each containing all children of a domain
+                                 # (components) and their complete subgraph at each field.
+                                 # [[[copm_subgraph1], [comp_subgraph2]], [[copm_subgraph1], [comp_subgraph2]]]
+
     context_group_subgraphs = []
+    context_group_child_subgraphs = []
+
     abstraction_layer_subgraphs = []
+    abstraction_layer_child_subgraphs = []
 
     # load vertices
-    for d in domain_list_ids:
-        vertices = graph_analyzer.collect_subgraph_vertices(graph, d)
-        domain_list_subgraphs.append(vertices)
+    for d in range(0, len(domain_list_ids)):
+        domain_subgraphs.append([domain_list_ids[d]])
+        domain_child_subgraphs.append([])
+        children = graph.get_out_neighbours(domain_list_ids[d])
+        for child in children:
+            child_subgraph = graph_analyzer.collect_subgraph_vertices(graph, child)
+            for n in child_subgraph:
+                domain_subgraphs[d].append(n)
+            domain_child_subgraphs[d].append(child_subgraph)
 
-    for c in context_group_ids:
-        vertices = graph_analyzer.collect_subgraph_vertices(graph, c)
-        context_group_subgraphs.append(vertices)
+    for c in range(0, len(context_group_ids)):
+        context_group_subgraphs.append([context_group_ids[c]])
+        context_group_child_subgraphs.append([])
+        children = graph.get_out_neighbours(context_group_ids[c])
+        for child in children:
+            child_subgraph = graph_analyzer.collect_subgraph_vertices(graph, child)
+            for n in child_subgraph:
+                context_group_subgraphs[c].append(n)
+            context_group_child_subgraphs[c].append(child_subgraph)
 
-    for a in abstraction_layer_ids:
-        vertices = graph_analyzer.collect_subgraph_vertices(graph, a)
-        abstraction_layer_subgraphs.append(vertices)
+    for a in range(0, len(abstraction_layer_ids)):
+        abstraction_layer_subgraphs.append([abstraction_layer_ids[a]])
+        abstraction_layer_child_subgraphs.append([])
+        children = graph.get_out_neighbours(abstraction_layer_ids[a])
+        for child in children:
+            child_subgraph = graph_analyzer.collect_subgraph_vertices(graph, child)
+            for n in child_subgraph:
+                abstraction_layer_subgraphs[a].append(n)
+            abstraction_layer_child_subgraphs[a].append(child_subgraph)
 
-    domain_dict = {}
-    context_dict = {}
-    abstraction_dict = {}
+    domain_dict_all_collisions = {}
+    domain_dict_component_collisions = {}
+
+    context_dict_all_collisions = {}
+    context_dict_component_collisions = {}
+
+    abstraction_dict_all_collisions = {}
+    abstraction_dict_component_collisions = {}
 
     # compare subgraphs
     for i in range(0, len(domain_list_ids)):
-        domain_dict[domain_list_new[i]] = []
-        for j in range(0, len(domain_list_ids)):
-            collision_list = graph_analyzer.list_shared_sub_vertices(graph, domain_list_ids[i], domain_list_ids[j])
-            collisions = len(collision_list)
-            if i == j:
-                collisions = -1
+        print("currently checking Domains at position %i of %i (%s)" % (i, len(domain_list_ids)-1, domain_list_new[i]))
+        domain_dict_all_collisions[domain_list_new[i]] = []
+        domain_dict_component_collisions[domain_list_new[i]] = []
 
-            pair = (domain_list_new[j], collisions)
-            domain_dict[domain_list_new[i]].append(pair)
+        for j in range(0, len(domain_list_ids)):
+            subcollisions = 0           # count all subcollisions
+            component_collisions = 0    # count all collisions of components
+            if i == j:
+                subcollisions = -1
+                component_collisions = -1
+            else:
+                subcollision_list = graph_analyzer.list_shared_sub_vertices(graph, domain_list_ids[i], domain_list_ids[j])
+                subcollisions = len(subcollision_list)
+
+                component_subcollision_list = shared_sub_graphs_direct_list(domain_child_subgraphs[i],
+                                                                            domain_child_subgraphs[j],
+                                                                            domain_child_subgraphs[i],
+                                                                            domain_child_subgraphs[j])
+                component_collisions = len(component_subcollision_list)
+
+            # append to solution
+            subcollisions_pair = (domain_list_new[j], subcollisions)
+            domain_dict_all_collisions[domain_list_new[i]].append(subcollisions_pair)
+
+            component_collisions_pair = (domain_list_new[j], component_collisions)
+            domain_dict_component_collisions[domain_list_new[i]].append(component_collisions_pair)
+
+    print("Domains done.")
 
     for i in range(0, len(context_group_ids)):
-        context_dict[context_group_list_new[i]] = []
-        for j in range(0, len(context_group_ids)):
-            collision_list = graph_analyzer.list_shared_sub_vertices(graph, context_group_ids[i], context_group_ids[j])
-            collisions = len(collision_list)
-            if i == j:
-                collisions = -1
+        print("currently checking Context Groups at position %i of %i (%s)" %
+                                                            (i, len(context_group_ids) - 1, context_group_list_new[i]))
+        context_dict_all_collisions[context_group_list_new[i]] = []
+        context_dict_component_collisions[context_group_list_new[i]] = []
 
-            pair = (context_group_list_new[j], collisions)
-            context_dict[context_group_list_new[i]].append(pair)
+        for j in range(0, len(context_group_ids)):
+            subcollisions = 0  # count all subcollisions
+            component_collisions = 0  # count all collisions of components
+            if i == j:
+                subcollisions = -1
+                component_collisions = -1
+            else:
+                subcollision_list = graph_analyzer.list_shared_sub_vertices(graph, context_group_ids[i], context_group_ids[j])
+                subcollisions = len(subcollision_list)
+
+                component_subcollision_list = shared_sub_graphs_direct_list(context_group_child_subgraphs[i],
+                                                                            context_group_child_subgraphs[j],
+                                                                            context_group_child_subgraphs[i],
+                                                                            context_group_child_subgraphs[j])
+                component_collisions = len(component_subcollision_list)
+
+            # append to solution
+            subcollisions_pair = (context_group_list_new[j], subcollisions)
+            context_dict_all_collisions[context_group_list_new[i]].append(subcollisions_pair)
+
+            component_collisions_pair = (context_group_list_new[j], component_collisions)
+            context_dict_component_collisions[context_group_list_new[i]].append(component_collisions_pair)
+
+    print("Context Groups done.")
 
     for i in range(0, len(abstraction_layer_ids)):
-        abstraction_dict[abstraction_layer_list_new[i]] = []
+        print("currently checking Abstraction Layers at position %i of %i (%s)" %
+                                                        (i, len(abstraction_layer_ids) - 1, abstraction_layer_list_new[i]))
+        abstraction_dict_all_collisions[abstraction_layer_list_new[i]] = []
+        abstraction_dict_component_collisions[abstraction_layer_list_new[i]] = []
+
         for j in range(0, len(abstraction_layer_ids)):
-            collision_list = graph_analyzer.list_shared_sub_vertices(graph, abstraction_layer_ids[i],
-                                                                     abstraction_layer_ids[j])
-            collisions = len(collision_list)
+            subcollisions = 0  # count all subcollisions
+            component_collisions = 0  # count all collisions of components
             if i == j:
-                collisions = -1
+                subcollisions = -1
+                component_collisions = -1
+            else:
+                subcollision_list = graph_analyzer.list_shared_sub_vertices(graph, abstraction_layer_ids[i], abstraction_layer_ids[j])
+                subcollisions = len(subcollision_list)
 
-            pair = (abstraction_layer_list_new[j], collisions)
-            abstraction_dict[abstraction_layer_list_new[i]].append(pair)
+                component_subcollision_list = shared_sub_graphs_direct_list(abstraction_layer_child_subgraphs[i],
+                                                                            abstraction_layer_child_subgraphs[j],
+                                                                            abstraction_layer_child_subgraphs[i],
+                                                                            abstraction_layer_child_subgraphs[j])
+                component_collisions = len(component_subcollision_list)
 
-    print_connection_dict_advanced(domain_dict, STANDARD_OUT_DICT + "domain.csv")
-    print_connection_dict_advanced(context_dict, STANDARD_OUT_DICT + "context.csv")
-    print_connection_dict_advanced(abstraction_dict, STANDARD_OUT_DICT + "abstraction.csv")
+            # append to solution
+            subcollisions_pair = (abstraction_layer_list_new[j], subcollisions)
+            abstraction_dict_all_collisions[abstraction_layer_list_new[i]].append(subcollisions_pair)
+
+            component_collisions_pair = (abstraction_layer_list_new[j], component_collisions)
+            abstraction_dict_component_collisions[abstraction_layer_list_new[i]].append(component_collisions_pair)
+
+    print("Abstraction Layers done. Now writing output.")
+
+    print_connection_dict_advanced(domain_dict_all_collisions, STANDARD_OUT_DICT + "domain.csv")
+    print_connection_dict_advanced(domain_dict_component_collisions, STANDARD_OUT_DICT + "domain_component_collisions.csv")
+
+    print_connection_dict_advanced(context_dict_all_collisions, STANDARD_OUT_DICT + "context.csv")
+    print_connection_dict_advanced(context_dict_component_collisions, STANDARD_OUT_DICT + "context_component_collisions.csv")
+
+    print_connection_dict_advanced(abstraction_dict_all_collisions, STANDARD_OUT_DICT + "abstraction.csv")
+    print_connection_dict_advanced(abstraction_dict_component_collisions, STANDARD_OUT_DICT + "abstraction_component_collisions.csv")
 
 
 def print_connection_dict(d: dict, file_name: str):
