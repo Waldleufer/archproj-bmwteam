@@ -28,7 +28,8 @@ import graph_analyzer
 STANDARD_OUT_DICT = "../out/"
 
 
-def shared_sub_graphs_direct_list(node_compare_list1: list, node_compare_list2: list, head_list1: list, head_list2: list):
+def shared_sub_graphs_direct_list(node_compare_list1: list, node_compare_list2: list, head_list1: list,
+                                  head_list2: list):
     """
     The function takes two lists of lists containing subgraphs that should be checked for overlap with each element of
     the other list. also takes two "head_lists" which have to be the same length as their respective node_compare_list
@@ -105,9 +106,9 @@ def shared_sub_graphs_indirect(graph: Graph, node_compare_list: list):
 
     overlapping_information = []
 
-    for i in range(0, len(node_compare_list)-1):  # current main node for subgraph-check
-        current_node_compare_list = loaded_nodes[(i+1):]
-        head_list = node_compare_list[(i+1):]
+    for i in range(0, len(node_compare_list) - 1):  # current main node for subgraph-check
+        current_node_compare_list = loaded_nodes[(i + 1):]
+        head_list = node_compare_list[(i + 1):]
         main_nodes_vtx = loaded_nodes[i]
         main_nodes = {}
         for vtx in main_nodes_vtx:
@@ -455,12 +456,12 @@ def print_top_level_connections(graph: Graph):
     abstraction_layer_ids = graph_analyzer.parse_node_values(graph, abstraction_layer_list_new)
 
     domain_subgraphs = []  # length equals amount of domains.
-                           # Contains all nodes of one domain and its subgraph at each field.
-                           # [[subgraph1],[subgraph2]]
+    # Contains all nodes of one domain and its subgraph at each field.
+    # [[subgraph1],[subgraph2]]
     domain_child_subgraphs = []  # length equals amount of domains.
-                                 # Contains a list of lists each containing all children of a domain
-                                 # (components) and their complete subgraph at each field.
-                                 # [[[copm_subgraph1], [comp_subgraph2]], [[copm_subgraph1], [comp_subgraph2]]]
+    # Contains a list of lists each containing all children of a domain
+    # (components) and their complete subgraph at each field.
+    # [[[copm_subgraph1], [comp_subgraph2]], [[copm_subgraph1], [comp_subgraph2]]]
 
     context_group_subgraphs = []
     context_group_child_subgraphs = []
@@ -510,18 +511,20 @@ def print_top_level_connections(graph: Graph):
 
     # compare subgraphs
     for i in range(0, len(domain_list_ids)):
-        print("currently checking Domains at position %i of %i (%s)" % (i, len(domain_list_ids)-1, domain_list_new[i]))
+        print(
+            "currently checking Domains at position %i of %i (%s)" % (i, len(domain_list_ids) - 1, domain_list_new[i]))
         domain_dict_all_collisions[domain_list_new[i]] = []
         domain_dict_component_collisions[domain_list_new[i]] = []
 
         for j in range(0, len(domain_list_ids)):
-            subcollisions = 0           # count all subcollisions
-            component_collisions = 0    # count all collisions of components
+            subcollisions = 0  # count all subcollisions
+            component_collisions = 0  # count all collisions of components
             if i == j:
                 subcollisions = -1
                 component_collisions = -1
             else:
-                subcollision_list = graph_analyzer.list_shared_sub_vertices(graph, domain_list_ids[i], domain_list_ids[j])
+                subcollision_list = graph_analyzer.list_shared_sub_vertices(graph, domain_list_ids[i],
+                                                                            domain_list_ids[j])
                 subcollisions = len(subcollision_list)
 
                 component_subcollision_list = shared_sub_graphs_direct_list(domain_child_subgraphs[i],
@@ -541,7 +544,7 @@ def print_top_level_connections(graph: Graph):
 
     for i in range(0, len(context_group_ids)):
         print("currently checking Context Groups at position %i of %i (%s)" %
-                                                            (i, len(context_group_ids) - 1, context_group_list_new[i]))
+              (i, len(context_group_ids) - 1, context_group_list_new[i]))
         context_dict_all_collisions[context_group_list_new[i]] = []
         context_dict_component_collisions[context_group_list_new[i]] = []
 
@@ -552,7 +555,8 @@ def print_top_level_connections(graph: Graph):
                 subcollisions = -1
                 component_collisions = -1
             else:
-                subcollision_list = graph_analyzer.list_shared_sub_vertices(graph, context_group_ids[i], context_group_ids[j])
+                subcollision_list = graph_analyzer.list_shared_sub_vertices(graph, context_group_ids[i],
+                                                                            context_group_ids[j])
                 subcollisions = len(subcollision_list)
 
                 component_subcollision_list = shared_sub_graphs_direct_list(context_group_child_subgraphs[i],
@@ -572,7 +576,7 @@ def print_top_level_connections(graph: Graph):
 
     for i in range(0, len(abstraction_layer_ids)):
         print("currently checking Abstraction Layers at position %i of %i (%s)" %
-                                                        (i, len(abstraction_layer_ids) - 1, abstraction_layer_list_new[i]))
+              (i, len(abstraction_layer_ids) - 1, abstraction_layer_list_new[i]))
         abstraction_dict_all_collisions[abstraction_layer_list_new[i]] = []
         abstraction_dict_component_collisions[abstraction_layer_list_new[i]] = []
 
@@ -583,7 +587,8 @@ def print_top_level_connections(graph: Graph):
                 subcollisions = -1
                 component_collisions = -1
             else:
-                subcollision_list = graph_analyzer.list_shared_sub_vertices(graph, abstraction_layer_ids[i], abstraction_layer_ids[j])
+                subcollision_list = graph_analyzer.list_shared_sub_vertices(graph, abstraction_layer_ids[i],
+                                                                            abstraction_layer_ids[j])
                 subcollisions = len(subcollision_list)
 
                 component_subcollision_list = shared_sub_graphs_direct_list(abstraction_layer_child_subgraphs[i],
@@ -602,13 +607,16 @@ def print_top_level_connections(graph: Graph):
     print("Abstraction Layers done. Now writing output.")
 
     print_connection_dict_advanced(domain_dict_all_collisions, STANDARD_OUT_DICT + "domain.csv")
-    print_connection_dict_advanced(domain_dict_component_collisions, STANDARD_OUT_DICT + "domain_component_collisions.csv")
+    print_connection_dict_advanced(domain_dict_component_collisions,
+                                   STANDARD_OUT_DICT + "domain_component_collisions.csv")
 
     print_connection_dict_advanced(context_dict_all_collisions, STANDARD_OUT_DICT + "context.csv")
-    print_connection_dict_advanced(context_dict_component_collisions, STANDARD_OUT_DICT + "context_component_collisions.csv")
+    print_connection_dict_advanced(context_dict_component_collisions,
+                                   STANDARD_OUT_DICT + "context_component_collisions.csv")
 
     print_connection_dict_advanced(abstraction_dict_all_collisions, STANDARD_OUT_DICT + "abstraction.csv")
-    print_connection_dict_advanced(abstraction_dict_component_collisions, STANDARD_OUT_DICT + "abstraction_component_collisions.csv")
+    print_connection_dict_advanced(abstraction_dict_component_collisions,
+                                   STANDARD_OUT_DICT + "abstraction_component_collisions.csv")
 
 
 def print_connection_dict(d: dict, file_name: str):
@@ -630,7 +638,7 @@ def print_connection_dict(d: dict, file_name: str):
     np.savetxt(file_name, output_array, delimiter=",", fmt="%.0f")
     print(output_array)
 
-    with open(STANDARD_OUT_DICT+file_name, "a", encoding="utf-8") as outfile:
+    with open(STANDARD_OUT_DICT + file_name, "a", encoding="utf-8") as outfile:
         outfile.write("\n")
         s = '{}, '.format(map(str, key_list))
         outfile.write(s)
@@ -639,16 +647,19 @@ def print_connection_dict(d: dict, file_name: str):
 def print_connection_dict_advanced(d: dict, file_name: str):
     """
     Gets a dictionary with Domain/ContextGroup/AbstractionLayer-names as keys and a list with all the
-    Domains/ContextGroups/AbstractionLayers they overlap with as values. Prints stuff to command line / file.
+    Domains/ContextGroups/AbstractionLayers they overlap with as values.
+    Prints stuff sorted alphabetically to command line / file.
 
     :param d: A dictionary containing advanced overlapping information.
     :param file_name: the name of the output file.
     """
-    output_array = np.zeros((len(d), len(d)))
+    dic = sorted(d)
+    output_array = np.zeros((len(dic), len(dic)))
     i = 0
-    key_list = list(d.keys())
-    for key, value in d.items():
-        for name_count_pair in value:
+    key_list = sorted(d.keys())
+    for key in key_list:
+        list_of_name_count_pairs = d[key]
+        for name_count_pair in list_of_name_count_pairs:
             name, count = name_count_pair
             j = key_list.index(name)
             output_array[i][j] = count
@@ -659,7 +670,7 @@ def print_connection_dict_advanced(d: dict, file_name: str):
     print(key_list)
     print("")
     print("")
-    with open(STANDARD_OUT_DICT+file_name, "a", encoding="utf-8") as outfile:
+    with open(STANDARD_OUT_DICT + file_name, "a", encoding="utf-8") as outfile:
         outfile.write("\n")
         s = ', '.join(map(str, key_list))
         outfile.write(s)
@@ -731,15 +742,15 @@ def main(argv):
             # print on command line
             print("the following nodes and their subgraphs aren't connected even though they share the same parent:")
             for graph in trouble_list:
-                print(graph[len(graph)-1] + ":")
-                for i in range(0, len(graph)-1):
+                print(graph[len(graph) - 1] + ":")
+                for i in range(0, len(graph) - 1):
                     print(graph[i])
                 print("")
 
             # write to file
             with open(STANDARD_OUT_DICT + "parent_handler_validation.txt", "w", encoding="utf-8") as file:
                 for graph in trouble_list:
-                    file.write(graph[len(graph)-1] + "\n")
+                    file.write(graph[len(graph) - 1] + "\n")
                     lists = graph[0:len(graph) - 1]
                     for lis in lists:
                         file.write(lis[0])
