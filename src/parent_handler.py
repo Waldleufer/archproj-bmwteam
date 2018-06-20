@@ -541,6 +541,10 @@ def print_top_level_connections(graph: Graph):
             domain_dict_component_collisions[domain_list_new[i]].append(component_collisions_pair)
 
     print("Domains done.")
+    print_connection_dict_advanced(domain_dict_all_collisions, STANDARD_OUT_DICT + "domain.csv")
+    print_connection_dict_advanced(domain_dict_component_collisions,
+                                   STANDARD_OUT_DICT + "domain_component_collisions.csv")
+    print("Domains output written")
 
     for i in range(0, len(context_group_ids)):
         print("currently checking Context Groups at position %i of %i (%s)" %
@@ -573,6 +577,10 @@ def print_top_level_connections(graph: Graph):
             context_dict_component_collisions[context_group_list_new[i]].append(component_collisions_pair)
 
     print("Context Groups done.")
+    print_connection_dict_advanced(context_dict_all_collisions, STANDARD_OUT_DICT + "context.csv")
+    print_connection_dict_advanced(context_dict_component_collisions,
+                                   STANDARD_OUT_DICT + "context_component_collisions.csv")
+    print("Context Groups Output written")
 
     for i in range(0, len(abstraction_layer_ids)):
         print("currently checking Abstraction Layers at position %i of %i (%s)" %
@@ -605,18 +613,10 @@ def print_top_level_connections(graph: Graph):
             abstraction_dict_component_collisions[abstraction_layer_list_new[i]].append(component_collisions_pair)
 
     print("Abstraction Layers done. Now writing output.")
-
-    print_connection_dict_advanced(domain_dict_all_collisions, STANDARD_OUT_DICT + "domain.csv")
-    print_connection_dict_advanced(domain_dict_component_collisions,
-                                   STANDARD_OUT_DICT + "domain_component_collisions.csv")
-
-    print_connection_dict_advanced(context_dict_all_collisions, STANDARD_OUT_DICT + "context.csv")
-    print_connection_dict_advanced(context_dict_component_collisions,
-                                   STANDARD_OUT_DICT + "context_component_collisions.csv")
-
     print_connection_dict_advanced(abstraction_dict_all_collisions, STANDARD_OUT_DICT + "abstraction.csv")
     print_connection_dict_advanced(abstraction_dict_component_collisions,
                                    STANDARD_OUT_DICT + "abstraction_component_collisions.csv")
+    print("Done")
 
 
 def print_connection_dict(d: dict, file_name: str):
@@ -670,10 +670,13 @@ def print_connection_dict_advanced(d: dict, file_name: str):
     print(key_list)
     print("")
     print("")
-    with open(STANDARD_OUT_DICT + file_name, "a", encoding="utf-8") as outfile:
-        outfile.write("\n")
+
+    with open(STANDARD_OUT_DICT + file_name, "r+", encoding="utf-8") as outfile:
+        content = outfile.read()
         s = ', '.join(map(str, key_list))
         outfile.write(s)
+        outfile.seek(0, 0)
+        outfile.write(s.rstrip('\r\n') + '\n' + content)
 
 
 def main(argv):
