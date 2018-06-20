@@ -14,7 +14,7 @@ The `json_validator` helps in checking whether the created `.json` file contains
 a.k.a. Component names.
 
 Using the `grep_adapter` we did our namespace search, replacing all Component names in `bmw-arch.json` with the search-terms which can be used later to create Component-nodes.
-The resulting `.json` file containing all search-terms we could find (within `task-depends.dot`) already exists as `task dependencies bmw-arch.json`.
+The resulting `.json` file containing all search-terms we could find (within `task-depends.dot`) already exists as `task dependencies bmw-arch.json` wich is assumed to be located within the `src/` directory for all following commands.
 
 ### Pre-Analysis
 
@@ -22,7 +22,7 @@ Having done all the previous mentioned work, it is now possible to add one Node 
 into the .dot file (as already mentioned in our Analysis and Evaluation, we only worked on `task-depends.dot`).
 This is done by calling the `parent_handler` from within the `src/` directory:
 
-`./parent_handler task-depends.dot -j "task dependencies bmw-arch.json" -c`
+`./parent_handler.py task-depends.dot -j "task dependencies bmw-arch.json" -c`
 
 The output graph is written to `../out/parent_handler_output.gt`.
 
@@ -33,13 +33,13 @@ Checking the Isolation Constraint and the Cohesion Constraint as defined in our 
 
 To check the Isolation Constraint of all Components, Domains, Context Groups and Abstraction Layers, type
 
-`./parent_handler ../out/parent_handler_output.gt -j "task dependencies bmw-arch.json" -v`
+`./parent_handler.py ../out/parent_handler_output.gt -j "task dependencies bmw-arch.json" -v`
 
 If any problems occur, those will be documented in a file located at `../out/parent_handler_validation.txt` (note that no file will be created if everything is all right - all problems would also be reportedby the terminal)
 
 Checking the Cohesion Constraint works as follows:
 
-`./parent_handler ../out/parent_handler_output.gt -j "task dependencies bmw-arch.json" -p`
+`./parent_handler.py ../out/parent_handler_output.gt -j "task dependencies bmw-arch.json" -p`
 
 This will create several output files representing the connections between all Domains, Context Groups and Abstraction Layers each:
 `domain.csv`, `context.csv` and `abstraction.csv` contain information about all colliding subnodes each.
