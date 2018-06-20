@@ -4,7 +4,7 @@
 ### Manual Navigation
 
 The first tool to get a broader grasp of the .dot files is the `graph_analyzer`. 
-Here we implementet a vast amount of general and useful options to traverse the graph and get different kinds of information.
+Here we implemented a vast amount of general and useful options to traverse the graph and get different kinds of information.
 
 The next step is `bmwArchitecture_to_json`. This is a helper script to ease the creation of such a .json file as it will be used later on while creating further analysis files.
 The resulting file should contains all Components from the to-be-architecture of BMW together with their Domain, Context Group and Abstraction Layer.
@@ -14,7 +14,7 @@ The `json_validator` helps in checking whether the created `.json` file contains
 a.k.a. Component names.
 
 Using the `grep_adapter` we did our namespace search, replacing all Component names in `bmw-arch.json` with the search-terms which can be used later to create Component-nodes.
-The resulting `.json` file containing all search-terms we could find (within `task-depends.dot`) already exists as `task dependencies bmw-arch.json` wich is assumed to be located within the `src/` directory for all following commands.
+The resulting `.json` file containing all search-terms we could find (within `task-depends.dot`) already exists as `task dependencies bmw-arch.json` which is assumed to be located within the `src/` directory for all following commands.
 
 ### Pre-Analysis
 
@@ -35,7 +35,7 @@ To check the Isolation Constraint of all Components, Domains, Context Groups and
 
 `./parent_handler.py ../out/parent_handler_output.gt -j "task dependencies bmw-arch.json" -v`
 
-If any problems occur, those will be documented in a file located at `../out/parent_handler_validation.txt` (note that no file will be created if everything is all right - all problems would also be reportedby the terminal)
+If any problems occur, those will be documented in a file located at `../out/parent_handler_validation.txt` (note that no file will be created if everything is all right - all problems would also be reported by the terminal)
 
 Checking the Cohesion Constraint works as follows:
 
@@ -59,10 +59,11 @@ If the number of components changes due to manual analysis, these new numbers ha
 
 same pattern works for *Context Groups* and *Abstraction Layer*
 
-### Visualisation
+### Visualization
 
+There are two ways for visualizing the resulting data:
+* Graphs could be rendered with the `--export*` option(s) of the [`graph_analyzer`](graph_analyzer_doc.md) script
+* Matrices can use the `render_matrix_graphic.py` script located under `src/utils/`.
 
-
-
-
+The last mentioned script works semi-automatic, which means there is no routine for parsing the data from an external file and the data has to be manually copied and pasted into the script itself. This step may be a bit tedious, but once it's done it enables a high degree of customization, which is often necessary for the visual appeal of the generate output file.
 
