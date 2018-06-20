@@ -26,6 +26,7 @@ The [graph-tool documentation](https://graph-tool.skewed.de/static/doc/index.htm
 
 ## Usage
 
+* [general tool pipeline](doc/general_tool_pipeline.md)
 * [graph_analyzer](doc/graph_analyzer_doc.md)
 * [jsonparser](doc/jsonparser_doc.md)
 * [json_validator](doc/json_validator_doc.md)
