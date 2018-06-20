@@ -6,7 +6,7 @@
 The first tool to get a broader grasp of the .dot files is the `graph_analyzer`. 
 Here we implementet a vast amount of general and useful options to traverse the graph and get different kinds of information.
 
-The next step is `bmwArchitecture to json`. This is a helper script to ease the creation of such a .json file as it will be used later on while creating further analysis files.
+The next step is `bmwArchitecture_to_json`. This is a helper script to ease the creation of such a .json file as it will be used later on while creating further analysis files.
 The resulting file should contains all Components from the to-be-architecture of BMW together with their Domain, Context Group and Abstraction Layer.
 The .json file containing all information given to us already exists as `bmw-arch.json`.
 
