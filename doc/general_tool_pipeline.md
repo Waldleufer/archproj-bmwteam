@@ -45,7 +45,22 @@ This will create several output files representing the connections between all D
 `domain.csv`, `context.csv` and `abstraction.csv` contain information about all colliding subnodes each.
 `domain_component_collisions.csv`, `context_component_collisions.csv` and `abstraction_component_collisions.csv` contain information about all colliding Components each.
 
-### Visualization
+#### Pre-Visualisation
+
+The `.csv` files can be imported in our Google Spreadsheet "**Violations**" by selecting Cell D3 and navigating to file
+-> import. Then simply upload the `.csv` file and under **Import Location** toggle the *"replace data at selected cell"* 
+checkbox.
+
+The sheet `Domain Vs` belongs to the file `domain.csv`
+
+The sheet `Weighted Domain Vs` belongs to `domain_component_collisions.csv`
+
+If the number of components changes due to manual analysis, these new numbers have to be updated in the Google Spreadsheet, too.
+
+same pattern works for *Context Groups* and *Abstraction Layer*
+
+### Visualisation
+
 
 
 
