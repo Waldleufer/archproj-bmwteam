@@ -64,5 +64,5 @@ There are two ways for visualizing the resulting data:
 * Graphs could be rendered with the `--export*` option(s) of the [`graph_analyzer`](graph_analyzer_doc.md) script
 * Matrices can use the `render_matrix_graphic.py` script located under `src/utils/`.
 
-The last mentioned script works semi-automatic, which means there is no routine for parsing the data from an external file and the data has to be manually copied and pasted into the script itself. This step may be a bit tedious, but once it's done it enables a high degree of customization, which is often necessary for the visual appeal of the generate output file.
+The last mentioned script works semi-automatic, which means there is no routine for parsing the data from an external file and the data has to be manually copied and pasted into the script itself. This step may be a bit tedious, but once it's done it enables a high degree of customization, which is often necessary for the visual appeal of the generated output file.
 
