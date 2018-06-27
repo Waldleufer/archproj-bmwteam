@@ -51,13 +51,19 @@ The `.csv` files can be imported in our Google Spreadsheet "**Violations**" by s
 -> import. Then simply upload the `.csv` file and under **Import Location** toggle the *"replace data at selected cell"* 
 checkbox (8).
 
-The sheet `Domain Vs` belongs to the file `domain.csv`
-
-The sheet `Weighted Domain Vs` belongs to `domain_component_collisions.csv`
-
+The sheet `Domain Vs` belongs to the file `domain.csv`.
+The sheet `Weighted Domain Vs` belongs to `domain_component_collisions.csv`.
 If the number of components changes due to manual analysis, these new numbers have to be updated in the Google Spreadsheet, too.
+Same pattern works for *Context Groups* and *Abstraction Layer*.
 
-same pattern works for *Context Groups* and *Abstraction Layer*
+The 3 matrices on the left hand side display information about the architecture's reality as follows:
+Colored by line, one can see the maximum in the dark yellow/red highlighted cells and the lighter shades indicate a value is bigger than a percentage of 90% or 50% or 10% of the max value.
+* `* shared nodes` (M1): the amount of nodes shared between two top layers when traversing the dependency graph.
+* `* Weighted Violation by number of possible violations`(M2): `* shared nodes` weighted by `* - # of max violations`
+* `* Weighted Violation by number of possible violations - TOP 4`(M3): same calculation as in M2, but now colored by line, one can see the maximum in the dark yellow/red highlighted cells and the lighter shades indicate the next smaller value.
+
+The matices on the right hand side display information necessary for the weighting process:
+* `* - # of max violations`: n * m, where n and m are the numbers of components of the different top layers.
 
 ### Visualization
 
