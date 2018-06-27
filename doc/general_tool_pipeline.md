@@ -63,8 +63,8 @@ Colored by line, one can see the maximum in the dark yellow/red highlighted cell
 * `* Weighted Violation by number of possible violations - TOP 4`(M3): same calculation as in M2, but now colored by line, one can see the maximum in the dark yellow/red highlighted cells and the lighter shades indicate the next smaller value.
 
 The matices on the right hand side display information necessary for the weighting process:
-* `* - # of max violations`: n * m, where n and m are the numbers of components of the different top layers.
-* the small list below: number of components in each top layer.
+* `* - # of max violations`(M4): n * m, where n and m are the numbers of components of the different top layers.
+* the small list below: number of components in each top layer used for calculation of M4.
 
 ### Visualization
 
