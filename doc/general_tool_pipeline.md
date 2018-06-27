@@ -64,6 +64,7 @@ Colored by line, one can see the maximum in the dark yellow/red highlighted cell
 
 The matices on the right hand side display information necessary for the weighting process:
 * `* - # of max violations`: n * m, where n and m are the numbers of components of the different top layers.
+* the small list below: number of components in each top layer.
 
 ### Visualization
 
