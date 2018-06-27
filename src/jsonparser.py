@@ -21,7 +21,7 @@ import argparse
 JSON_FILE_PATH = "../tests/bmw-arch.json"
 
 
-def _breakdown_dict(dic):
+def _breakdown_dict(dic: dict):
     """
     Breaks down our whole bmw-json schema into a single dictionary.
     :param dic: a dictionary in our bmw-json schema.
@@ -40,7 +40,7 @@ def _breakdown_dict(dic):
     return modules
 
 
-def all_components(file_path):
+def all_components(file_path: str):
     """
     Returns a list of every component inside a json file using our bmw-json schema
     :param file_path: path to the file
@@ -61,7 +61,7 @@ def all_components(file_path):
     return componentlist
 
 
-def search_by_domain(file_path: str, domain):
+def search_by_domain(file_path: str, domain: str):
     """
     Searches a dictionary in our bmw-json schema for every module inside the given domain.
     param file_path: the path to the json file to be searched. It should be in our bmw-json schema.
@@ -86,7 +86,7 @@ def search_by_domain(file_path: str, domain):
     return domainlist
 
 
-def search_by_context(file_path, context):
+def search_by_context(file_path: str, context: str):
     """
     Searches a dictionary in our bmw-json schema for every module inside the given contextGroup.
     :param file_path: the path to the json file to be searched. It should be in our bmw-json schema.
@@ -111,7 +111,7 @@ def search_by_context(file_path, context):
     return contextlist
 
 
-def search_by_abstraction(file_path, abstraction_layer):
+def search_by_abstraction(file_path: str, abstraction_layer: str):
     """
     Searches a dictionary in our bmw-json schema for every module inside the given contextGroup.
     :param file_path: the path to the json file to be searched. It should be in our bmw-json schema.
@@ -135,52 +135,58 @@ def search_by_abstraction(file_path, abstraction_layer):
     return abstraction_layer_list
 
 
-def get_domainlist():
-    domains = ["apposs","cia","connectivity","distrender","entertainment","hmi", "navigation","speech","supersec","sysfunc","sysinfra","telematics"]
+def get_domains(file_path: str):
+    path = file_path
+    if path == "":
+        path = JSON_FILE_PATH
+    data_file = open(path, encoding="utf-8")
+    dic = json.loads(data_file.read())
+
+    modules = _breakdown_dict(dic)
+    domains = []
+    for k,v in modules.items():
+        dom = v["domain"]
+        if (dom not in domains) and (dom is not None):
+            domains.append(dom)
+
+    domains.sort()
     return domains
 
 
-def get_context_groups():
-    contexts = ["Connectivity","Multimedia","Navigation","Speech",
-        "Telematics / OAP","CE integration / A4A","Filesystem","Data","IPC",
-        "Runtime environment Framework libraries","Network","Lifecycle / diversity",
-        "SysInfra managers","System functions","Security","Log&Trace / debug",
-        "Graphic","Audio / Video","Linux infrastructure","Kernel / bootloader","Drivers / firmware"]
-    return contexts
+def get_context_groups(file_path: str):
+    path = file_path
+    if path == "":
+        path = JSON_FILE_PATH
+    data_file = open(path, encoding="utf-8")
+    dic = json.loads(data_file.read())
+
+    modules = _breakdown_dict(dic)
+    context_groups = []
+    for k, v in modules.items():
+        con_group = v["contextGroup"]
+        if (con_group not in context_groups) and (con_group is not None):
+            context_groups.append(con_group)
+
+    context_groups.sort()
+    return context_groups
 
 
-def get_abstraction_layers():
-    abstraction_layers = ["Presentation", "Middleware", "Middleware - OnlineApp platform", "Services",
-        "Presentation - OnlineApps",
-        "Presentation - HMI",
-        "Services - Telematics platform - Infrastructure", "Services - Telematics platform - Iterface-vehicle",
-        "System Infrastructure - off-the-shelf", "System Infrastructure - off-the-shelf - compression",
-        "System Infrastructure - off-the-shelf - rendering", "System Infrastructure - off-the-shelf - imaging",
-        "System Infrastructure - off-the-shelf - string", "System Infrastructure - off-the-shelf - json",
-        "System Infrastructure - off-the-shelf - xml", "System Infrastructure - off-the-shelf - Audio / AVB stack",
-        "System Infrastructure - product specific", "System Infrastructure - product specific - RSU",
-        "System Infrastructure - product specific - Personalization",
-        "System Infrastructure - product specific - Diversity",
-        "BSP", "BSP - HAL / audo", "BSP - HAL / graphic"]
+def get_abstraction_layers(file_path: str):
+    path = file_path
+    if path == "":
+        path = JSON_FILE_PATH
+    data_file = open(path, encoding="utf-8")
+    dic = json.loads(data_file.read())
+
+    modules = _breakdown_dict(dic)
+    abstraction_layers = []
+    for k, v in modules.items():
+        abstract_layer = v["abstractionLayer"]
+        if (abstract_layer not in abstraction_layers) and (abstract_layer is not None):
+            abstraction_layers.append(abstract_layer)
+
+    abstraction_layers.sort()
     return abstraction_layers
-
-
-
-
-
-
-'''
-usage example
-'''
-
-# domainlist = search_by_domain("", "navigation")
-# print(domainlist)
-
-# contextlist = search_by_context("", "Navigation")
-# print(contextlist)
-
-# abstractionLayerList = search_by_abstraction("", "Presentation")
-# print(abstractionLayerList)
 
 
 def line_print(component_list: list):

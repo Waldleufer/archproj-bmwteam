@@ -25,7 +25,7 @@ from pprint import pprint
 import jsonparser
 import graph_analyzer
 
-STANDARD_OUT_DICT = "../out/"
+STANDARD_OUT_DIR = "../out/"
 
 
 def shared_sub_graphs_direct_list(node_compare_list1: list, node_compare_list2: list, head_list1: list,
@@ -209,7 +209,7 @@ def create_parents(graph_filename: str, json_filename: str):
     Afterwards the graph_analyzer is used to each create a parent node "containing" all found child nodes.
 
     :param graph_filename: the path to the graph to be searched
-    :param json_filename: the path to a json file (in our bmw-json format)
+    :param json_filename: the path to a json file (in our bmw-json format) with search names as names
     containing all the names for the parent creation
     """
 
@@ -221,7 +221,7 @@ def create_parents(graph_filename: str, json_filename: str):
         graph = graph_analyzer.add_parent(graph, name, childnodes)
 
     # add domains, contextGroups and abstractionLayers as parents of the components
-    domain_list = jsonparser.get_domainlist()
+    domain_list = jsonparser.get_domains(json_filename)
     for domain in domain_list:
         comp_list = jsonparser.search_by_domain(json_filename, domain)
         comp_list_new = []
@@ -232,7 +232,7 @@ def create_parents(graph_filename: str, json_filename: str):
         lis = graph_analyzer.parse_node_values(graph, comp_list_new)
         graph = graph_analyzer.add_parent(graph, domain, lis)
 
-    context_group_list = jsonparser.get_context_groups()
+    context_group_list = jsonparser.get_context_groups(json_filename)
     for context in context_group_list:
         comp_list = jsonparser.search_by_context(json_filename, context)
         comp_list_new = []
@@ -243,7 +243,7 @@ def create_parents(graph_filename: str, json_filename: str):
         lis = graph_analyzer.parse_node_values(graph, comp_list_new)
         graph = graph_analyzer.add_parent(graph, context, lis)
 
-    abstraction_layer_list = jsonparser.get_abstraction_layers()
+    abstraction_layer_list = jsonparser.get_abstraction_layers(json_filename)
     for layer in abstraction_layer_list:
         comp_list = jsonparser.search_by_abstraction(json_filename, layer)
         comp_list_new = []
@@ -264,7 +264,7 @@ def create_parents(graph_filename: str, json_filename: str):
     abstraction_layer_ids = graph_analyzer.parse_node_values(graph, abstraction_layer_list)
     graph = graph_analyzer.add_parent(graph, "ABSTRACTION_LAYERS", abstraction_layer_ids)
 
-    graph_analyzer.export_graph(graph, STANDARD_OUT_DICT + "parent_handler_output")
+    graph_analyzer.export_graph(graph, STANDARD_OUT_DIR + "parent_handler_output")
 
 
 def find_childnodes(graph: Graph, json_filename: str):
@@ -328,16 +328,18 @@ def find_childnodes(graph: Graph, json_filename: str):
     return parent_dictionary
 
 
-def get_validation_dict_domains(graph: Graph):
+def get_validation_dict_domains(graph: Graph, json_filename: str):
     """
     The function gets a graph and searches it for all Domain names. It returns a dictionary which can be given to
     validate_children_subgraphs, checking the Isolation Constraint for all Domains individually. Thus
     its form is the name of a Domain as key and all this Domains direct children in a list as values.
 
     :param graph: the graph to be searched
+    :param json_filename: the path to a json file (in our bmw-json format) containing at least every Domain name once at
+            any component (it is suggested to use the json file containing search names or the one conatining HLA-names)
     :return: a dictionary with Domain names as keys and all found children in a list as value
     """
-    domain_list = jsonparser.get_domainlist()
+    domain_list = jsonparser.get_domains(json_filename)
     domain_list_new = []
     for d in domain_list:
         if ("no Match" in d) or ("kein Match" in d):
@@ -358,16 +360,19 @@ def get_validation_dict_domains(graph: Graph):
     return domain_dict
 
 
-def get_validation_dict_context_groups(graph: Graph):
+def get_validation_dict_context_groups(graph: Graph, json_filename: str):
     """
     The function gets a graph and searches it for all Context Group names. It returns a dictionary which can be given to
     validate_children_subgraphs, checking the Isolation Constraint for all Context Groups individually. Thus
     its form is the name of a Context Group as key and all this Context Groups direct children in a list as values.
 
     :param graph: the graph to be searched
+    :param json_filename: the path to a json file (in our bmw-json format) containing at least every Context Group
+            name once at any component (it is suggested to use the json file containing search names
+            or the one conatining HLA-names)
     :return: a dictionary with Context Group names as keys and all found children in a list as value
     """
-    context_group_list = jsonparser.get_context_groups()
+    context_group_list = jsonparser.get_context_groups(json_filename)
     context_group_list_new = []
     for c in context_group_list:
         if ("no Match" in c) or ("kein Match" in c):
@@ -388,7 +393,7 @@ def get_validation_dict_context_groups(graph: Graph):
     return context_group_dict
 
 
-def get_validation_dict_abstraction_layers(graph: Graph):
+def get_validation_dict_abstraction_layers(graph: Graph, json_filename: str):
     """
     The function gets a graph and searches it for all Abstraction Layer names. It returns a dictionary which can be
     given to validate_children_subgraphs, checking the Isolation Constraint for all Abstraction Layers individually.
@@ -396,9 +401,12 @@ def get_validation_dict_abstraction_layers(graph: Graph):
     in a list as values.
 
     :param graph: the graph to be searched
+    :param json_filename: the path to a json file (in our bmw-json format) containing at least every Abstraction Layer
+            name once at any component (it is suggested to use the json file containing search names
+            or the one conatining HLA-names)
     :return: a dictionary with Abstraction Layer names as keys and all found children in a list as value
     """
-    abstraction_layer_list = jsonparser.get_abstraction_layers()
+    abstraction_layer_list = jsonparser.get_abstraction_layers(json_filename)
     abstraction_layer_list_new = []
     for a in abstraction_layer_list:
         if ("no Match" in a) or ("kein Match" in a):
@@ -419,7 +427,7 @@ def get_validation_dict_abstraction_layers(graph: Graph):
     return abstraction_layer_dict
 
 
-def print_top_level_connections(graph: Graph):
+def print_top_level_connections(graph: Graph, json_filename: str):
     """
     Gets a graph and searches all Domain/ContextGroup/AbstractionLayer-names
     (which can be created using parent_handler -c).
@@ -427,10 +435,11 @@ def print_top_level_connections(graph: Graph):
     and prints the result using print_connection_dict.
 
     :param graph: The graph to be checked.
+    :param json_filename: the path to a json file (in our bmw-json format) containing the names of the top-level nodes
     """
-    domain_list = jsonparser.get_domainlist()
-    context_group_list = jsonparser.get_context_groups()
-    abstraction_layer_list = jsonparser.get_abstraction_layers()
+    domain_list = jsonparser.get_domains(json_filename)
+    context_group_list = jsonparser.get_context_groups(json_filename)
+    abstraction_layer_list = jsonparser.get_abstraction_layers(json_filename)
 
     domain_list_new = []
     context_group_list_new = []
@@ -541,9 +550,9 @@ def print_top_level_connections(graph: Graph):
             domain_dict_component_collisions[domain_list_new[i]].append(component_collisions_pair)
 
     print("Domains done.")
-    print_connection_dict_advanced(domain_dict_all_collisions, STANDARD_OUT_DICT + "domain.csv")
+    print_connection_dict_advanced(domain_dict_all_collisions, STANDARD_OUT_DIR + "domain.csv")
     print_connection_dict_advanced(domain_dict_component_collisions,
-                                   STANDARD_OUT_DICT + "domain_component_collisions.csv")
+                                   STANDARD_OUT_DIR + "domain_component_collisions.csv")
     print("Domains output written")
 
     for i in range(0, len(context_group_ids)):
@@ -577,9 +586,9 @@ def print_top_level_connections(graph: Graph):
             context_dict_component_collisions[context_group_list_new[i]].append(component_collisions_pair)
 
     print("Context Groups done.")
-    print_connection_dict_advanced(context_dict_all_collisions, STANDARD_OUT_DICT + "context.csv")
+    print_connection_dict_advanced(context_dict_all_collisions, STANDARD_OUT_DIR + "context.csv")
     print_connection_dict_advanced(context_dict_component_collisions,
-                                   STANDARD_OUT_DICT + "context_component_collisions.csv")
+                                   STANDARD_OUT_DIR + "context_component_collisions.csv")
     print("Context Groups Output written")
 
     for i in range(0, len(abstraction_layer_ids)):
@@ -613,35 +622,10 @@ def print_top_level_connections(graph: Graph):
             abstraction_dict_component_collisions[abstraction_layer_list_new[i]].append(component_collisions_pair)
 
     print("Abstraction Layers done. Now writing output.")
-    print_connection_dict_advanced(abstraction_dict_all_collisions, STANDARD_OUT_DICT + "abstraction.csv")
+    print_connection_dict_advanced(abstraction_dict_all_collisions, STANDARD_OUT_DIR + "abstraction.csv")
     print_connection_dict_advanced(abstraction_dict_component_collisions,
-                                   STANDARD_OUT_DICT + "abstraction_component_collisions.csv")
+                                   STANDARD_OUT_DIR + "abstraction_component_collisions.csv")
     print("Done")
-
-
-def print_connection_dict(d: dict, file_name: str):
-    """
-    Gets a dictionary with Domain/ContextGroup/AbstractionLayer-names as keys and a list with all the
-    Domains/ContextGroups/AbstractionLayers they overlap with as values. Prints stuff to command line / file.
-
-    :param d: A dictionary containing overlapping information.
-    :param file_name: the name of the output file.
-    """
-    output_array = np.zeros((len(d), len(d)))
-    i = 0
-    key_list = list(d.keys())
-    for key, value in d.items():
-        for name in value:
-            j = key_list.index(name)
-            output_array[i][j] = 1
-        i = i + 1
-    np.savetxt(file_name, output_array, delimiter=",", fmt="%.0f")
-    print(output_array)
-
-    with open(STANDARD_OUT_DICT + file_name, "a", encoding="utf-8") as outfile:
-        outfile.write("\n")
-        s = '{}, '.format(map(str, key_list))
-        outfile.write(s)
 
 
 def print_connection_dict_advanced(d: dict, file_name: str):
@@ -653,8 +637,7 @@ def print_connection_dict_advanced(d: dict, file_name: str):
     :param d: A dictionary containing advanced overlapping information.
     :param file_name: the name of the output file.
     """
-    dic = sorted(d)
-    output_array = np.zeros((len(dic), len(dic)))
+    output_array = np.zeros((len(d), len(d)))
     i = 0
     key_list = sorted(d.keys())
     for key in key_list:
@@ -671,7 +654,7 @@ def print_connection_dict_advanced(d: dict, file_name: str):
     print("")
     print("")
 
-    with open(STANDARD_OUT_DICT + file_name, "r+", encoding="utf-8") as outfile:
+    with open(STANDARD_OUT_DIR + file_name, "r+", encoding="utf-8") as outfile:
         content = outfile.read()
         s = ', '.join(map(str, key_list))
         outfile.write(s)
@@ -705,21 +688,15 @@ def main(argv):
                         help="Prints Connections between domains & co. and which nodes cause them.")
     args = parser.parse_args()
 
-    if not args.file1:
+    if (not args.file1) or (not args.json_file):
         print("Try 'parent_handler -h' for more information.")
         sys.exit(1)
 
     if args.createParents:
-        if not args.json_file:
-            print("Try 'parent_handler -h' for more information.")
-            sys.exit(1)
         create_parents(args.file1, args.json_file)
         return
 
     if args.validate or args.validate_components_only:
-        if not args.json_file:
-            print("Try 'parent_handler -h' for more information.")
-            sys.exit(1)
         graph = load_graph(args.file1)
         print("creation of dictionaries has begun")
         component_dict = find_childnodes(graph, args.json_file)
@@ -727,9 +704,9 @@ def main(argv):
         validation_dict_context_groups = {}
         validation_dict_abstraction_layers = {}
         if args.validate_components_only is False:
-            validation_dict_domains = get_validation_dict_domains(graph)
-            validation_dict_context_groups = get_validation_dict_context_groups(graph)
-            validation_dict_abstraction_layers = get_validation_dict_abstraction_layers(graph)
+            validation_dict_domains = get_validation_dict_domains(graph, args.json_file)
+            validation_dict_context_groups = get_validation_dict_context_groups(graph, args.json_file)
+            validation_dict_abstraction_layers = get_validation_dict_abstraction_layers(graph, args.json_file)
         print("validation has begun")
         print("\nvalidating Isolation Constraint of all Components\n")
         trouble_list1 = validate_children_subgraphs(graph, component_dict)
@@ -751,7 +728,7 @@ def main(argv):
                 print("")
 
             # write to file
-            with open(STANDARD_OUT_DICT + "parent_handler_validation.txt", "w", encoding="utf-8") as file:
+            with open(STANDARD_OUT_DIR + "parent_handler_validation.txt", "w", encoding="utf-8") as file:
                 for graph in trouble_list:
                     file.write(graph[len(graph) - 1] + "\n")
                     lists = graph[0:len(graph) - 1]
@@ -769,7 +746,7 @@ def main(argv):
 
     if args.print_top_level_connections:
         graph = load_graph(args.file1)
-        print_top_level_connections(graph)
+        print_top_level_connections(graph, args.json_file)
         return
 
 
