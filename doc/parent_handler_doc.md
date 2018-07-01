@@ -29,7 +29,7 @@ If there are at least 2 nodes not connected directly or indirectly via subgraphs
 * `-p` or `--print_top_level_connections` takes the given `.gt` file and analyzes the top level connections.
 Output files are placed in the out directory (`../out/`) and are named `domain.csv`, `context.csv` and `abstraction.csv`, as well as `domain_component_collisions.csv`, `context_component_collisions.csv` and `abstraction_component_collisions.csv` representing the connections either between all domains, all contextGroups or all abstractionLayers. The first three count all overlapping nodes in total, the last three ones count overlapping components.
 In the `.csv` files a matrix containing the overlapping information is shown. 
-At the bottom a list of the TopLevel arguments shows the sequence of the columns and if transposed it shows the sequence of the rows.
+The top row shows the TopLevel Term sequence of the columns and if transposed it shows the sequence of the rows.
 
 
 

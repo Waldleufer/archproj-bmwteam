@@ -6,7 +6,7 @@ The help could be shown with `./json_validator.py -h` or `./json_validator.py --
 The file `bmw-arch.json` was created by hand and contains all relevant information about the given to-be-architecture from BMW.
 Its format is depicted in `bmwSoftwareArchitecture_archproj-bmwteam-schema.json`.
 
-The `json_validator` scripts main use was to validate the search terms a.k.a. component-names from above-mentioned .json file. 
+The `json_validator` scripts main use was to validate the search terms a.k.a. component-names from above-mentioned .json file.
 It basically matches the terms from the `.json` file against the lines from the `.dot` file and prints out whether it found search results or not.
 
 It uses the `grep_adapter.py` script what can also be found in our projects `/src`-directory.

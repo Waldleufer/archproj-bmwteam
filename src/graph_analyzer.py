@@ -122,7 +122,7 @@ def find_hotspots(graph: Graph, top_length=0) -> list:
     :return: a list of nodes with the top most connections
     """
     if top_length <= 0:
-        top_length = int(math.log2(len(graph.vertices()))) + 1  # use log2 to hold the result list small
+        top_length = int(math.log2(len(graph.get_vertices()))) + 1  # use log2 to hold the result list small
 
     vtx_list = list(graph.vertices())
     vtx_list.sort(key=lambda vertex: vertex.out_degree(), reverse=True)
