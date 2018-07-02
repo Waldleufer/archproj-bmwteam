@@ -29,19 +29,20 @@ The intended usage is to look for Components with big amounts of unconnected com
 
 in the `../out/dependency_graphs/`-directory the following folders are created:
 
-* components: 
-  Visualization of the isolation constraint of every component. 
-* abstraction_layers_inner:
-  Visualization of the isolation constraint of every Abstraction Layer.
-* context_groups_inner:
-  Visualization of the isolation constraint of every Context Group.
-* domains_inner:
-  Visualization of the isolation constraint of every Domain. 
+* **components**: 
+  Visualizations of the isolation constraint of every component. 
+* **abstraction_layers_inner**:
+  Visualizations of the isolation constraint of every Abstraction Layer.
+* **context_groups_inner**:
+  Visualizations of the isolation constraint of every Context Group.
+* **domains_inner**:
+  Visualizations of the isolation constraint of every Domain. 
   
+
   
-* abstraction_layers_outer:
-  Analysis of the cohesion and coupling constraints between two different Abstraction Layers
-* context_groups_outer:
-  Analysis of the cohesion and coupling constraints between two different Context Groups
-* domains_outer:
-  Analysis of the cohesion and coupling constraints between two different Domains
+* **abstraction_layers_outer**:
+  Analysis of the cohesion and coupling constraints between every two different Abstraction Layers
+* **context_groups_outer**:
+  Analysis of the cohesion and coupling constraints between every two different Context Groups
+* **domains_outer**:
+  Analysis of the cohesion and coupling constraints between every two different Domains
