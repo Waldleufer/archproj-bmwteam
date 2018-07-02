@@ -11,8 +11,7 @@ The following command assumes `parent_handler_output.gt`, `bmw-arch.json`, `task
 ./dependency_graphs.py -g parent_handler_output.gt -jo bmw-arch.json -js "task dependencies bmw-arch.json"
 ```
 
-would produce a bunch of graphs to the `../out/dependency_graphs/`-directory for manual analysis.
-
+would produce a bunch of graphs to the `../out/dependency_graphs/`-directory for manual analysis,
 and a table to `stdout`:
 
 
@@ -34,7 +33,7 @@ tool to find the candidates to then inspect manually.
 
 ##
 
-in the `../out/dependency_graphs/`-directory the following folders are created:
+In the `../out/dependency_graphs/`-directory the following folders are created:
 
 * **components**: 
   Visualizations of the isolation constraint of every component. 
