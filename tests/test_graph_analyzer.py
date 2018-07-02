@@ -91,6 +91,35 @@ class AnalyzerTest(unittest.TestCase):
         act_results = list_shared_sub_vertices(graph, graph.vertex(3), graph.vertex(4))
         self.assertListEqual(act_results, exp_results)
 
+    def test_collect_subgraph_vertices(self):
+        exp_results = {graph.vertex(4), graph.vertex(6), graph.vertex(7), graph.vertex(8), graph.vertex(9)}
+        act_results = collect_subgraph_vertices(graph, graph.vertex(4))
+        self.assertSetEqual(act_results, exp_results)
+        exp_results = {graph.vertex(2),
+                       graph.vertex(5),
+                       graph.vertex(9),
+                       graph.vertex(10),
+                       graph.vertex(11),
+                       graph.vertex(6)}
+        act_results = collect_subgraph_vertices(graph, graph.vertex(2))
+        self.assertSetEqual(act_results, exp_results)
+
+    def test_nodes_connected(self):
+        self.assertTrue(nodes_connected(graph, ["v04", "v06"]))
+        self.assertTrue(nodes_connected(graph, ["v00", "v06"]))
+        self.assertTrue(nodes_connected(graph, ["v05", "v06"]))
+        self.assertFalse(nodes_connected(graph, ["v10", "v03"]))
+        self.assertTrue(nodes_connected(graph, ["v10", "v03", "v00"]))
+        self.assertFalse(nodes_connected(graph, ["v02", "v03", "v04"]))
+
+    def test_parse_node_values(self):
+        exp_results = ["0", "1", "5", "11"]
+        act_results = parse_node_values(graph, ["v00", "1", "v05", "v11"])
+        self.assertListEqual(act_results, exp_results)
+        exp_results = ["6", "7", "7", "9", "8", "2"]
+        act_results = parse_node_values(graph, ["6", "7", "v07", "v09", "8", ".v02"])
+        self.assertListEqual(act_results, exp_results)
+
 
 if __name__ == '__main__':
     unittest.main()
