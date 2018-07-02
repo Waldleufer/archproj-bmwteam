@@ -12,3 +12,15 @@ The following comand assumes `parent_handler_output.gt`, `bmw-arch.json`, `task 
 ```
 
 would produce a bunch of graphs to the `../out/dependency_graphs/`-directory for manual analysis.
+
+and a table to `stdout`
+```
+Listing number of unconnected Graphs in Components, where number > 1, i.e. a coherence violation.
+Unconnected | Component name
+------------+-------------------
+# of uncon- | example_component_name
+-nected     | 
+components  | 
+...
+
+```
