@@ -33,3 +33,5 @@ The [graph-tool documentation](https://graph-tool.skewed.de/static/doc/index.htm
 * [parent_handler](doc/parent_handler_doc.md)
 * [grep_adapter](doc/grep_adapter_doc.md)
 * [bmwArchitecture_to_json](/doc/bmwArchitecture_to_json_doc.md)
+* [dependency_graphs](/doc/dependency_graphs_doc.md)
+* [task_depends](/doc/task_depends_doc.md)
