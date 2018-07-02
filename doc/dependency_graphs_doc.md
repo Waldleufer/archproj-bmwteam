@@ -1,6 +1,6 @@
 ## Usage of `dependency_graphs`
 
-For the creation of the graphs [graphviz](https://graphviz.readthedocs.io/en/stable/) is required
+For the creation of the graphs [graphviz](https://graphviz.readthedocs.io/en/stable/) is required.
 
 The main script is placed in the `/src`-directory of this project.
 The help could be shown with `./dependency_graphs.py -h` or `./dependency_graphs.py --help`.

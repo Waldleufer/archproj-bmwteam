@@ -7,13 +7,13 @@ The script computes the size (number of nodes) of the dependency graph for each 
 With this, one can get a list of nodes that need the most components.
 
 The more interesting feature of this tool is the ability to reverse `-r` the direction of all dependencies 
-and the doing the same analysis as above.
+and proceed with the same analysis method as mentioned before.
 This generates a list of nodes that are most required by other nodes.
 
-If it is assumed that packages have to be rebuild, when a dependency changes, then these are the packages that 
-have the biggest impact on other packages when changed.
+Assuming packages have to be rebuild when a dependency changes, then these are the packages with 
+the biggest impact on other packages.
 
-###Examples:
+### Examples:
 
 The following use-cases refer to the `test01.dot`-file which could be found in the `/tests`-folder.
 This file represents a graph with the following hierarchy:
@@ -30,7 +30,7 @@ This file represents a graph with the following hierarchy:
            └─[Dark Green]
 ```
 
-using the tool with 
+Using the tool with 
 ```bash
 ./task_depends.py ../tests/test01.dot 
 ```
@@ -50,11 +50,11 @@ Count | Task Name
     0 | Red Apple
 ```
 
-using the tool with the inverted option:
+Using the tool with the inverted option:
 ````
 ./task_depends.py ../tests/test01.dot -r
 ````
-one gets:
+One gets:
 ```
 Count | Task Name
 ------+-------------------
