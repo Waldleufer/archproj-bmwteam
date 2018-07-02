@@ -15,7 +15,7 @@ would produce a bunch of graphs to the `../out/dependency_graphs/`-directory for
 
 and a table to `stdout`
 ```
-Listing number of unconnected Graphs in Components, where number > 1, i.e. a coherence violation.
+Listing number of unconnected Graphs in Components, where number > 1 , i.e. a coherence violation.
 Unconnected | Component name
 ------------+-------------------
 # of uncon- | example_component_name
@@ -24,3 +24,24 @@ components  |
 ...
 
 ```
+
+The intended usage is to look for Components with big amounts of unconnected components
+
+in the `../out/dependency_graphs/`-directory the following folders are created:
+
+* components: 
+  Visualization of the isolation constraint of every component. 
+* abstraction_layers_inner:
+  Visualization of the isolation constraint of every Abstraction Layer.
+* context_groups_inner:
+  Visualization of the isolation constraint of every Context Group.
+* domains_inner:
+  Visualization of the isolation constraint of every Domain. 
+  
+  
+* abstraction_layers_outer:
+  Analysis of the cohesion and coupling constraints between two different Abstraction Layers
+* context_groups_outer:
+  Analysis of the cohesion and coupling constraints between two different Context Groups
+* domains_outer:
+  Analysis of the cohesion and coupling constraints between two different Domains
