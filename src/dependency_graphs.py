@@ -26,11 +26,14 @@ import graph_analyzer
 from utils.unconnected_graphs import UnconnectedGraphs
 import graphviz
 import os
+import itertools
 
-DEFAULT_OUTPUT_DIR = "../out/"
+DEFAULT_OUTPUT_DIR = "../out/dependency_graphs/"
 
 NAME_CONVERTER = dict()  # Converts component search names to original names
 
+CLUSTER_COLOR = "grey91"
+OUTPUT_FORMAT = "png"
 
 def group_node(graph: Graph, group_val: str, vtx_group: list) -> Vertex:
     """
@@ -125,8 +128,8 @@ def generate_inner_layer_graph(graph: Graph, layer_nodes: list, component_group_
         os.mkdir(DEFAULT_OUTPUT_DIR + directory)
     for layer_node in layer_nodes:
         layer_name = graph.vp.vertex_name[layer_node]
-        if layer_name == "telematics":  # TODO: Fix Json file, the remove this
-            continue
+        # if layer_name == "telematics":  # TODO: Fix Json file, the remove this
+            # continue
         component_groups = [component_group_dict[component_node] for component_node in graph.get_out_neighbors(layer_node)]
         view = connections_view(graph, component_groups)
         export = graphviz.Digraph(name=layer_name,
@@ -134,43 +137,50 @@ def generate_inner_layer_graph(graph: Graph, layer_nodes: list, component_group_
                 filename=sanitize_file_name(layer_name)+".dot",
                 engine="dot",
                 node_attr={"shape": "box"},
-                format="png")
+                format=OUTPUT_FORMAT)
         with export.subgraph(name='cluster0') as sub:
-            sub.attr(label=layer_name, style="filled", color="lightgrey")
+            sub.attr(label=layer_name, style="filled", color=CLUSTER_COLOR)
             for vtx in component_groups:
                 sub.node(graph.vp.vertex_name[vtx].replace("COMPONENT_GROUP_",""))
         for (a,b) in view.edges():
             export.edge(view.vp.vertex_name[a].replace("COMPONENT_GROUP_",""), view.vp.vertex_name[b].replace("COMPONENT_GROUP_",""))
         export.render()
 
-def generate_outer_layer_graph(graph: Graph, layer_nodes: list, component_group_dict: dict, name: str):
+def generate_outer_layer_graph(graph: Graph, layer_nodes: list, component_group_dict: dict, directory: str):
+    """Generates dependency graphs between pairs of two layers."""
     if not os.path.isdir(DEFAULT_OUTPUT_DIR):
         os.mkdir(DEFAULT_OUTPUT_DIR)
-    directory = "inter_layer"
     if not os.path.isdir(DEFAULT_OUTPUT_DIR + directory):
         os.mkdir(DEFAULT_OUTPUT_DIR + directory)
 
-    all_component_groups = list()
-    export = graphviz.Digraph(name=name,
-            directory="{}{}".format(DEFAULT_OUTPUT_DIR, directory),
-            filename=sanitize_file_name(name)+".dot",
-            engine="dot",
-            node_attr={"shape": "box"},
-            format="png")
-    for layer_node in layer_nodes:
-        layer_name = graph.vp.vertex_name[layer_node]
-        if layer_name == "telematics":  # TODO: Fix Json file, the remove this
-            continue
-        component_groups = [component_group_dict[component_node] for component_node in graph.get_out_neighbors(layer_node)]
-        with export.subgraph(name='cluster_'+str(layer_node)) as sub:
-            sub.attr(label=layer_name, style="filled", color="lightgrey")
-            for vtx in component_groups:
+    for (layer_node_a, layer_node_b) in itertools.combinations(layer_nodes, 2):
+        all_component_groups = list()
+        layer_name_a = graph.vp.vertex_name[layer_node_a]
+        layer_name_b = graph.vp.vertex_name[layer_node_b]
+        # if layer_name_a == "telematics" or layer_name_b == "telematics":  # TODO: Fix Json file, then remove this
+            # continue
+        export = graphviz.Digraph(name=layer_name_a+"_+_"+layer_name_b,
+                directory="{}{}".format(DEFAULT_OUTPUT_DIR, directory),
+                filename="{}_-_{}.dot".format(sanitize_file_name(layer_name_a), sanitize_file_name(layer_name_b)),
+                engine="dot",
+                node_attr={"shape": "box"},
+                format=OUTPUT_FORMAT)
+        component_groups_a = [component_group_dict[component_node] for component_node in graph.get_out_neighbors(layer_node_a)]
+        component_groups_b = [component_group_dict[component_node] for component_node in graph.get_out_neighbors(layer_node_b)]
+        with export.subgraph(name='cluster_'+str(layer_node_a)) as sub:
+            sub.attr(label=layer_name_a, style="filled", color=CLUSTER_COLOR)
+            for vtx in component_groups_a:
                 sub.node(graph.vp.vertex_name[vtx].replace("COMPONENT_GROUP_",""))
                 all_component_groups.append(vtx)
-    view = connections_view(graph, all_component_groups)
-    for (a,b) in view.edges():
-        export.edge(view.vp.vertex_name[a].replace("COMPONENT_GROUP_",""), view.vp.vertex_name[b].replace("COMPONENT_GROUP_",""))
-    export.render()
+        with export.subgraph(name='cluster_'+str(layer_node_b)) as sub:
+            sub.attr(label=layer_name_b, style="filled", color=CLUSTER_COLOR)
+            for vtx in component_groups_b:
+                sub.node(graph.vp.vertex_name[vtx].replace("COMPONENT_GROUP_",""))
+                all_component_groups.append(vtx)
+        view = connections_view(graph, all_component_groups)
+        for (a,b) in view.edges():
+            export.edge(view.vp.vertex_name[a].replace("COMPONENT_GROUP_",""), view.vp.vertex_name[b].replace("COMPONENT_GROUP_",""))
+        export.render()
 
 
 def main():
@@ -226,9 +236,9 @@ def main():
                     filename=sanitize_file_name(component_name)+".dot",
                     engine="dot",
                     node_attr={"shape": "box"},
-                    format="png")
+                    format=OUTPUT_FORMAT)
             with export.subgraph(name='cluster0') as sub:
-                sub.attr(label=component_name, style="filled", color="lightgrey")
+                sub.attr(label=component_name, style="filled", color=CLUSTER_COLOR)
                 for vtx in component_vertices:
                     sub.node(graph.vp.vertex_name[vtx])
             for (a,b) in view.edges():
@@ -256,18 +266,18 @@ def main():
 
     parent_node = get_vertex_by_name(graph_components_grouped, "CONTEXT_GROUPS")
     nodes = list(graph_filtered.get_out_neighbors(parent_node))
-    generate_inner_layer_graph(graph_filtered, nodes, component_group_dict, "context_groups")
-    generate_outer_layer_graph(graph_filtered, nodes, component_group_dict, "context_groups")
+    generate_inner_layer_graph(graph_filtered, nodes, component_group_dict, "context_groups_inner")
+    generate_outer_layer_graph(graph_filtered, nodes, component_group_dict, "context_groups_outer")
 
     parent_node = get_vertex_by_name(graph_components_grouped, "ABSTRACTION_LAYERS")
     nodes = list(graph_filtered.get_out_neighbors(parent_node))
-    generate_inner_layer_graph(graph_filtered, nodes, component_group_dict, "abstraction_layers")
-    generate_outer_layer_graph(graph_filtered, nodes, component_group_dict, "abstraction_layers")
+    generate_inner_layer_graph(graph_filtered, nodes, component_group_dict, "abstraction_layers_inner")
+    generate_outer_layer_graph(graph_filtered, nodes, component_group_dict, "abstraction_layers_outer")
 
     parent_node = get_vertex_by_name(graph_components_grouped, "DOMAINS")
     nodes = list(graph_filtered.get_out_neighbors(parent_node))
-    generate_inner_layer_graph(graph_filtered, nodes, component_group_dict, "domains")
-    generate_outer_layer_graph(graph_filtered, nodes, component_group_dict, "domains")
+    generate_inner_layer_graph(graph_filtered, nodes, component_group_dict, "domains_inner")
+    generate_outer_layer_graph(graph_filtered, nodes, component_group_dict, "domains_outer")
 
 
 if __name__ == "__main__":
