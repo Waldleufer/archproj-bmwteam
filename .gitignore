@@ -8,6 +8,7 @@ pn-depends.dot
 task-depends.dot
 bmw-arch.json
 task dependencies bmw-arch.json
+Makefile
 
 # Python
 __pycache__/
