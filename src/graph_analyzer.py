@@ -113,7 +113,7 @@ def search_vertices(graph: Graph, search_str: str) -> set:
     return vtx_list
 
 
-def find_hotspots(graph: Graph, top_length=0) -> list:
+def find_hotspots_out(graph: Graph, top_length=0) -> list:
     """
     Finds the top nodes with most outgoing connections to other nodes ("hotspots").
 
@@ -126,6 +126,24 @@ def find_hotspots(graph: Graph, top_length=0) -> list:
 
     vtx_list = list(graph.vertices())
     vtx_list.sort(key=lambda vertex: vertex.out_degree(), reverse=True)
+    del vtx_list[top_length:]
+
+    return vtx_list
+
+
+def find_hotspots_in(graph: Graph, top_length=0) -> list:
+    """
+    Finds the top nodes with most intgoing connections to other nodes ("hotspots").
+
+    :param graph: the graph containing the given nodes
+    :param top_length: return the top N results or the top log2(graph_size)+1 if no parameter was given
+    :return: a list of nodes with the top most connections
+    """
+    if top_length <= 0:
+        top_length = int(math.log2(len(graph.get_vertices()))) + 1  # use log2 to hold the result list small
+
+    vtx_list = list(graph.vertices())
+    vtx_list.sort(key=lambda vertex: vertex.in_degree(), reverse=True)
     del vtx_list[top_length:]
 
     return vtx_list
@@ -580,8 +598,8 @@ def main(argv):
                              "*.gt-file.")
     parser.add_argument('-r', '--raw', action='store_true',
                         help="Enable raw output format for further automated processing or piping. This option is "
-                             "supported by '--search', '--children', '--top', '--subgraphs',"
-                             "'--independent-subgraphs', '--shared'.")
+                             "supported by '--search', '--children', '--subgraphs', '--independent-subgraphs', "
+                             "'--shared'.")
     parser.add_argument('--group', nargs='+', metavar=('GROUP_NODE_NAME', 'NODE_IDs|NODE_NAMEs'),
                         help="Merges the given list of node IDs together into one group-node.")
     parser.add_argument('--export', type=str, nargs=1, metavar='FILE-NAME',
@@ -634,17 +652,27 @@ def main(argv):
                     print("No results found for '%s'." % search_str)
 
     if args.top:
-        vertex_list = find_hotspots(graph)
+        i = 1
+        vertex_list = find_hotspots_out(graph)
+        print("Top out-degree nodes:")
+        for vtx in vertex_list:
+            print("%d." % i,
+                  "vtx[%d]" % vtx,
+                  "in:", vtx.in_degree(),
+                  "out:", vtx.out_degree(),
+                  "val:", graph.vp.vertex_name[vtx])
+            i += 1
 
-        if args.raw:
-            for vtx in vertex_list:
-                print("%s " % vtx, end="")
-        else:
-            for vtx in vertex_list:
-                print("vtx[%d]" % vtx,
-                      "in:", vtx.in_degree(),
-                      "out:", vtx.out_degree(),
-                      "val:", graph.vp.vertex_name[vtx])
+        i = 1
+        vertex_list = find_hotspots_in(graph)
+        print("Top in-degree nodes:")
+        for vtx in vertex_list:
+            print("%d." % i,
+                  "vtx[%d]" % vtx,
+                  "in:", vtx.in_degree(),
+                  "out:", vtx.out_degree(),
+                  "val:", graph.vp.vertex_name[vtx])
+            i += 1
 
     if args.cycles:
         print_cycles(graph)

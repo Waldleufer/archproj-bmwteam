@@ -111,8 +111,8 @@ vtx[1] in: 1 out: 0 val: Banana
 vtx[6] in: 1 out: 0 val: Mango
 vtx[0] in: 1 out: 2 val: Apple
 ```
-The `--raw` output works also in combination with `--children`, `--top`, `--subgraphs` and
-`--shared` option.
+The `--raw` output works also in combination with `--children`, `--subgraphs` and `--shared` 
+option.
 
 It is also possible to create groups where various nodes get merged together into one master-node.
 Therefore the `--group` option requires the name of the new master-node and than a list of all
