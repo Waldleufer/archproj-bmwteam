@@ -755,7 +755,7 @@ def main(argv):
             sys.exit(1)
 
         if args.add_parent[0].isdigit():
-            print("Parent name as to be a string. "
+            print("Parent name has to be a string. "
                   "If you really want a number as parent name, put a dot in front of it (e.g. '.5') to escape it.")
             print(HELP_INFO_MSG)
             sys.exit(1)
@@ -770,7 +770,7 @@ def main(argv):
         if args.export:
             export_graph(add_parent(graph, parent_name, vtx_list), args.export[0])
         else:
-            export_graph(add_parent(graph, parent_name, vtx_list))
+            export_graph(out_graph)
 
     if args.export_subgraph:
         node = parse_node_values(graph, args.export_subgraph)
