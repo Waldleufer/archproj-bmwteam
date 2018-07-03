@@ -121,7 +121,7 @@ indices (which is also possible). Usually, it is sufficient enough to use the na
 as long as they match the exact spelling as provided in the source file. Even both notations could
 be mixed up and used at the same time like stated in the following example. 
 ```bash
-./graph_analyzer.py ../tests/test01.dot --group ApplesWithDifferentColors 5 Green 8 Dark
+./graph_analyzer.py ../tests/test01.dot --group ApplesWithDifferentColors 5 Green 6 Dark
 ```
 
 The output would be:
@@ -134,8 +134,25 @@ vtx[3] in: 0 out: 4 val: Fruits
 └─ vtx[6] in: 1 out: 0 val: Mango
 ```
 
-Note that the indices `5` and  `8` got included in the new `ApplesWithDifferentColors`-node as well
-as the nodes with the indices `2` and `8`, which got selected by their name. However, the rest of
+Note that the indices `5` and  `9` got included in the new `ApplesWithDifferentColors`-node as well
+as the nodes with the indices `2` and `6`, which got selected by their name. However, the rest of
 the nodes and their indices remain the same. If a interpretation of a number as name is necessary,
 we can escape the input with a dot, followed by the number we want to use as node name (e.g. `.5`).
 
+Sometimes it may be desired to merge different nodes together like the `--group`-option, but 
+without removing any data from the source graph. Therefore, the option `--add-parent` followed by
+the name of the new node and a list of nodes, could be used like:
+```bash
+./graph_analyzer.py ../tests/test01.dot --add-parent Colors 5 9 --export myNewGraphFile
+
+```
+If we now examine our new node in the generated file `myNewGraphFile.gt` located in the `/out`
+directory, we get the following output:
+
+```
+vtx[10] in: 0 out: 2 val: Colors
+├─ vtx[5] in: 2 out: 0 val: Green Apple
+└─ vtx[9] in: 2 out: 0 val: Red Apple
+```
+As we see, the in-degree of the `Green` and `Red` node was increased to `2`, which means the 
+relation to the new parent node was added while the other graph dependencies remain untouched.
