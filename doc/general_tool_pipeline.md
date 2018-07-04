@@ -27,6 +27,7 @@ This is done by calling the [`parent_handler`](parent_handler_doc.md) from withi
 The output graph is written to `../out/parent_handler_output.gt` (3,4).
 
 ### Semi-Automatic Analysis
+#### Approach 1
 
 The [`parent_handler`](parent_handler_doc.md) then is capable of doing two kinds of checks on the new graph:
 Checking the Isolation Constraint and the Cohesion Constraint as defined in our Architecture Documentation (5).
@@ -45,7 +46,11 @@ This will create several output files representing the connections between all D
 `domain.csv`, `context.csv` and `abstraction.csv` contain information about all colliding subnodes each.
 `domain_component_collisions.csv`, `context_component_collisions.csv` and `abstraction_component_collisions.csv` contain information about all colliding Components each.
 
-#### Pre-Visualisation
+#### Approach 2
+
+### Pre-Visualisation
+
+#### Approach 1
 
 The `.csv` files can be imported in our Google Spreadsheet "**Violations**" by selecting Cell D3 and navigating to file
 -> import. Then simply upload the `.csv` file and under **Import Location** toggle the *"replace data at selected cell"* 
@@ -66,9 +71,11 @@ The matices on the right hand side display information necessary for the weighti
 * `* - # of max violations`(M4): n * m, where n and m are the numbers of components of the different top layers.
 * the small list below: number of components in each top layer used for calculation of M4.
 
+#### Approach 2
+
 ### Visualization
 
-There are two ways for visualizing the resulting data:
+There are //TODO: two ways for visualizing the resulting data:
 * Graphs could be rendered with the `--export*` option(s) of the [`graph_analyzer`](graph_analyzer_doc.md) script
 * Matrices can use the `render_matrix_graphic.py` script located under `src/utils/`.
 
