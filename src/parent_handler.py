@@ -321,7 +321,7 @@ def find_childnodes(graph: Graph, json_filename: str):
                 if n not in node_collection:
                     node_collection.append(n)
 
-        if len(node_collection) == 0:
+        if is_empty(node_collection):
             print("there were no results for the search '%s'" % name)
         parent_dictionary[name] = node_collection
 
@@ -718,7 +718,7 @@ def main(argv):
         trouble_list4 = validate_children_subgraphs(graph, validation_dict_abstraction_layers)
 
         trouble_list = trouble_list1 + trouble_list2 + trouble_list3 + trouble_list4
-        if len(trouble_list) != 0:
+        if not is_empty(trouble_list):
             # print on command line
             print("the following nodes and their subgraphs aren't connected even though they share the same parent:")
             for graph in trouble_list:
