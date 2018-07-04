@@ -48,6 +48,16 @@ This will create several output files representing the connections between all D
 
 #### Approach 2
 
+The [`dependency_graphs`](dependency_graphs_doc.md) tool requires the pre-analysis result of [`parent_handler`](parent_handler_doc.md), namely the `parent_handler_output.gt` graph that is generated using the `-c` option.
+Furthermore, it requires both json files, in order to convert search names, as they are used in the `parent_handler_output.gt`, back to the original names.
+
+The analysis and generation of all the diagrams depicting all kinds of direct dependencies can be triggered by:
+```
+./dependency_graphs.py -g parent_handler_output.gt -jo bmw-arch.json -js "task dependencies bmw-arch.json"
+```
+Thereby, generated dependency graphs are gathered and written to .dot files (7).
+For the sake of simplicity, those are directly converted into PNG image files which gets written to folders under `../out/dependency_graphs/` (8).
+
 ### Pre-Visualisation
 
 #### Approach 1
@@ -72,6 +82,8 @@ The matices on the right hand side display information necessary for the weighti
 * the small list below: number of components in each top layer used for calculation of M4.
 
 #### Approach 2
+
+Visualization of the analysis results of approach 2 (aquired with [`dependency_graphs`](dependency_graphs_doc.md)) is vizualized in the same step with the analysis. Rendered graphs can be found in the folders under `../out/dependency_graphs/` (8).
 
 ### Visualization
 
