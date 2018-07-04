@@ -31,4 +31,4 @@ would mean `apple` was found and is thereby a acceptable component-name but
 Note:
 If a suitable component name cannot be found even after investigation the word should be tagged with the 
 ` - no Match` tag e.g. `bananas - no Match`. Tools that use the .json file use this tag to indicate whether they should 
-really search for a term or not
+really search for a term or not.
