@@ -26,7 +26,7 @@ This is done by calling the [`parent_handler`](parent_handler_doc.md) from withi
 
 The output graph is written to `../out/parent_handler_output.gt` (3,4).
 
-### Semiautomatic Analysis
+### Semi-Automatic Analysis
 
 The [`parent_handler`](parent_handler_doc.md) then is capable of doing two kinds of checks on the new graph:
 Checking the Isolation Constraint and the Cohesion Constraint as defined in our Architecture Documentation (5).
