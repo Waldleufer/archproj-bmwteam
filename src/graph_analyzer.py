@@ -442,7 +442,7 @@ def nodes_connected(graph: Graph, nodes: list):
         if graph.vp.vertex_name[vtx] in node_names:
             node_names.remove(graph.vp.vertex_name[vtx])
             node_vertices.append(vtx)
-    if len(node_names) > 0:
+    if not node_names:
         print("Warning: The following node names could not be found in the graph and will be ignored:", node_names)
 
     # Filter graph by input nodes and the shortest paths between them:
@@ -457,13 +457,9 @@ def nodes_connected(graph: Graph, nodes: list):
         for e in e_list:
             eprop_filter[e] = True
     graph_filtered = GraphView(graph, vfilt=vprop_filter, efilt=eprop_filter)
-    #graph_draw(graph_filtered, vertex_text=graph_filtered.vp.vertex_name)
 
     # Check if the graph only consists of one graph
-    if len(list(UnconnectedGraphs(graph_filtered))) == 1:
-        return True
-    else:
-        return False
+    return bool(len(list(UnconnectedGraphs(graph_filtered))) == 1)
 
 
 def group(graph: Graph, group_val: str, vtx_group: list) -> GraphView:
