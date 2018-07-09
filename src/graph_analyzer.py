@@ -327,7 +327,8 @@ def export_subgraph(graph: Graph, sub_vtx: int, file_name: str):
     graph_draw(sub,
                pos=pos,
                vertex_fill_color='#8ae234cc',  # rrggbbaa
-               vertex_text=sub.vertex_index,
+               vertex_shape="square",
+               vertex_text=sub.vp.vertex_name,
                output=DEFAULT_OUTPUT_DIR + file_name + ".svg")
 
 

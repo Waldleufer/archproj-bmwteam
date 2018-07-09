@@ -156,3 +156,17 @@ vtx[10] in: 0 out: 2 val: Colors
 ```
 As we see, the in-degree of the `Green` and `Red` node was increased to `2`, which means the 
 relation to the new parent node was added while the other graph dependencies remain untouched.
+
+To export a visual representation of the graph, we can use the `--export-subgraph`-option to do 
+so. Contrary to its name, it can also export the root-node of an graph if specified, but beware 
+that root-nodes tend mostly to be of a larger size. Therefore, it is mostly not recommended to do 
+so since the graphical appeal is easily going to drown in a huge node-forrest. However, since we
+only dealing with a small example, we can export the *.svg file with the following command:
+
+```bash
+./graph_analyzer.py ../tests/test01.dot --export-subgraph Fruits --outfile fruit-graph
+```
+
+The output looks like the following:
+
+![Output Graph](fruit-graph.svg)

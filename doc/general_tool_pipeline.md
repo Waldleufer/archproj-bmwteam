@@ -77,18 +77,18 @@ Colored by line, one can see the maximum in the dark yellow/red highlighted cell
 * `* Weighted Violation by number of possible violations`(M2): `* shared nodes` weighted by `* - # of max violations`
 * `* Weighted Violation by number of possible violations - TOP 4`(M3): same calculation as in M2, but now colored by line, one can see the maximum in the dark yellow/red highlighted cells and the lighter shades indicate the next smaller value.
 
-The matices on the right hand side display information necessary for the weighting process:
+The matrices on the right hand side display information necessary for the weighting process:
 * `* - # of max violations`(M4): n * m, where n and m are the numbers of components of the different top layers.
 * the small list below: number of components in each top layer used for calculation of M4.
 
 #### Approach 2
 
-Visualization of the analysis results of approach 2 (aquired with [`dependency_graphs`](dependency_graphs_doc.md)) is vizualized in the same step with the analysis. Rendered graphs can be found in the folders under `../out/dependency_graphs/` (8).
+Visualization of the analysis results of approach 2 (acquired with [`dependency_graphs`](dependency_graphs_doc.md)) is visualized in the same step with the analysis. Rendered graphs can be found in the folders under `../out/dependency_graphs/` (8).
 
 ### Visualization
 
 There are //TODO: two ways for visualizing the resulting data:
-* Graphs could be rendered with the `--export*` option(s) of the [`graph_analyzer`](graph_analyzer_doc.md) script
+* Graphs could be rendered with the `--export-subgraph` option of the [`graph_analyzer`](graph_analyzer_doc.md) script.
 * Matrices can use the `render_matrix_graphic.py` script located under `src/utils/`.
 
 The last mentioned script works semi-automatic, which means there is no routine for parsing the data from an external file and the data has to be manually copied and pasted into the script itself. This step may be a bit tedious, but once it's done it enables a high degree of customization, which is often necessary for the visual appeal of the generated output file.
