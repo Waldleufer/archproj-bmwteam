@@ -143,7 +143,7 @@ Sometimes it may be desired to merge different nodes together like the `--group`
 without removing any data from the source graph. Therefore, the option `--add-parent` followed by
 the name of the new node and a list of nodes, could be used like:
 ```bash
-./graph_analyzer.py ../tests/test01.dot --add-parent Colors 5 9 --export myNewGraphFile
+./graph_analyzer.py ../tests/test01.dot --add-parent Colors 5 9 --outfile myNewGraphFile
 
 ```
 If we now examine our new node in the generated file `myNewGraphFile.gt` located in the `/out`

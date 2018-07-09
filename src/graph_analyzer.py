@@ -598,9 +598,9 @@ def main(argv):
                              "'--shared'.")
     parser.add_argument('--group', nargs='+', metavar=('GROUP_NODE_NAME', 'NODE_IDs|NODE_NAMEs'),
                         help="Merges the given list of node IDs together into one group-node.")
-    parser.add_argument('--export', type=str, nargs=1, metavar='FILE-NAME',
-                        help="Option to set a specific file name for a exported *.gt-file. This option works in "
-                        "combination with '--exclude-nodes', '--exclude-subgraphs', '--group', '--export-subgraph'.")
+    parser.add_argument('--outfile', type=str, nargs=1, metavar='FILE-NAME',
+                        help="Option to set a specific file name for a exported file. This option works in combination "
+                             "with '--exclude-nodes', '--exclude-subgraphs', '--group', '--export-subgraph'.")
     parser.add_argument('--add-parent',  nargs='+', metavar=('PARENT_NODE_NAME', 'NODE_IDs|NODE_NAMEs'),
                         help="Adds a new parent node to the given nodes.")
     parser.add_argument('--export-subgraph', nargs=1, metavar='NODE_ID|NODE_NAME',
@@ -700,8 +700,8 @@ def main(argv):
             sub = exclude_subgraph(sub, sub_vtx)
 
         print("Excluded %d sub-graphs" % len(nodes))
-        if args.export:
-            export_graph(sub, args.export[0])
+        if args.outfile:
+            export_graph(sub, args.outfile[0])
         else:
             export_graph(sub)
 
@@ -709,8 +709,8 @@ def main(argv):
         nodes = parse_node_values(graph, args.exclude_nodes)
         out_graph = exclude_nodes(graph, nodes)
         print("Excluded %d nodes" % len(nodes))
-        if args.export:
-            export_graph(out_graph, args.export[0])
+        if args.outfile:
+            export_graph(out_graph, args.outfile[0])
         else:
             export_graph(out_graph)
 
@@ -739,8 +739,8 @@ def main(argv):
 
         vtx_list = parse_node_values(graph, args.group[1:])
 
-        if args.export:
-            export_graph(group(graph, group_name, vtx_list), args.export[0])
+        if args.outfile:
+            export_graph(group(graph, group_name, vtx_list), args.outfile[0])
         else:
             export_graph(group(graph, group_name, vtx_list))
 
@@ -763,16 +763,16 @@ def main(argv):
 
         vtx_list = parse_node_values(graph, args.add_parent[1:])
 
-        if args.export:
-            export_graph(add_parent(graph, parent_name, vtx_list), args.export[0])
+        if args.outfile:
+            export_graph(add_parent(graph, parent_name, vtx_list), args.outfile[0])
         else:
             export_graph(out_graph)
 
     if args.export_subgraph:
         node = parse_node_values(graph, args.export_subgraph)
 
-        if args.export:
-            export_subgraph(graph, node[0], args.export[0])
+        if args.outfile:
+            export_subgraph(graph, node[0], args.outfile[0])
         else:
             export_subgraph(graph, node[0], "sub" + str(node))
 
