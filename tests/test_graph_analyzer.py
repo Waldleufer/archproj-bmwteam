@@ -88,7 +88,7 @@ class AnalyzerTest(unittest.TestCase):
 
     def test_find_hotspots_in(self):
         exp_results = [6, 2, 7, 9]
-        act_results = find_hotspots_out(graph)
+        act_results = find_hotspots_in(graph)
         self.assertListEqual(act_results, exp_results)
 
     def test_shared(self):
