@@ -134,8 +134,8 @@ vtx[3] in: 0 out: 4 val: Fruits
 └─ vtx[6] in: 1 out: 0 val: Mango
 ```
 
-Note that the indices `5` and  `9` got included in the new `ApplesWithDifferentColors`-node as well
-as the nodes with the indices `2` and `6`, which got selected by their name. However, the rest of
+Note that the indices `5` and  `6` got included in the new `ApplesWithDifferentColors`-node as well
+as the nodes with the indices `2` and `9`, which got selected by their name. However, the rest of
 the nodes and their indices remain the same. If a interpretation of a number as name is necessary,
 we can escape the input with a dot, followed by the number we want to use as node name (e.g. `.5`).
 
