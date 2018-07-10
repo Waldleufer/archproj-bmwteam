@@ -87,7 +87,7 @@ Visualization of the analysis results of approach 2 (acquired with [`dependency_
 
 ### Visualization
 
-There are //TODO: two ways for visualizing the resulting data:
+There are two ways for visualizing the resulting data:
 * Graphs could be rendered with the `--export-subgraph` option of the [`graph_analyzer`](graph_analyzer_doc.md) script.
 * Matrices can use the `render_matrix_graphic.py` script located under `src/utils/`.
 
