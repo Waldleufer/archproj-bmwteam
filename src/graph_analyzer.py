@@ -133,7 +133,7 @@ def find_hotspots_out(graph: Graph, top_length=0) -> list:
 
 def find_hotspots_in(graph: Graph, top_length=0) -> list:
     """
-    Finds the top nodes with most intgoing connections to other nodes ("hotspots").
+    Finds the top nodes with most ingoing connections to other nodes ("hotspots").
 
     :param graph: the graph containing the given nodes
     :param top_length: return the top N results or the top log2(graph_size)+1 if no parameter was given
@@ -307,6 +307,21 @@ def find_subgraphs(graph: Graph) -> dict:
         subgraph_dict[int(vtx)] = subgraph
 
     return subgraph_dict
+
+
+def export_circle_diagram(graph: Graph, file_name: str):
+    """
+    Exports the given graph into the `../out/`-directory as `.png`-file. Since this call may take a long time to
+    compute, it should be used carefully.
+
+    :param graph: the input graph
+    :param file_name: the name of the exported *.svg-file
+    """
+    if not os.path.isdir(DEFAULT_OUTPUT_DIR):
+        os.mkdir(DEFAULT_OUTPUT_DIR)
+
+    state = minimize_nested_blockmodel_dl(graph, deg_corr=True)
+    draw_hierarchy(state, output=DEFAULT_OUTPUT_DIR + file_name + ".png")  # *.svg works as well
 
 
 def export_subgraph(graph: Graph, sub_vtx: int, file_name: str):
@@ -606,6 +621,8 @@ def main(argv):
                         help="Adds a new parent node to the given nodes.")
     parser.add_argument('--export-subgraph', nargs=1, metavar='NODE_ID|NODE_NAME',
                         help="Exports the given sub-graph into a *.svg-file.")
+    parser.add_argument('--export-circle-diagram', action='store_true',
+                        help="Exports the dependencies of the graph as a circle diagram.")
 
     args = parser.parse_args()
 
@@ -776,6 +793,12 @@ def main(argv):
             export_subgraph(graph, node[0], args.outfile[0])
         else:
             export_subgraph(graph, node[0], "sub" + str(node))
+
+    if args.export_circle_diagram:
+        if args.outfile:
+            export_circle_diagram(graph, args.outfile[0])
+        else:
+            export_circle_diagram(graph, "circle_diagram")
 
 
 if __name__ == "__main__":
